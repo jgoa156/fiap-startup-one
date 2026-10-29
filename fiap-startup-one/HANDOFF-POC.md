@@ -12,7 +12,7 @@ raiz do repositório [jgoa156/fiap-startup-one](https://github.com/jgoa156/fiap-
 |---|---|
 | Ideação, produto, plano de negócios, pitch | **Prontos** desde 23/09/2026 |
 | Trabalho de multicloud | **Pronto**, pendente só o ensaio com cronômetro |
-| **POC** | **Bloco 1 de 4 pronto em 29/10/2026** (máquina de estados e trilha). Prazo real menor que 4 semanas, tudo local até haver conta AWS. Ver `fiap-startup-one/poc/README.md` |
+| **POC** | **Código dos 4 blocos pronto em 29/10/2026**; ensaio de carga ainda não rodou. Prazo real menor que 4 semanas, tudo local até haver conta AWS. Ver `fiap-startup-one/poc/README.md`, seção "O que falta" |
 | Repositório | [jgoa156/fiap-startup-one](https://github.com/jgoa156/fiap-startup-one), privado, com os dois trabalhos e este handoff desde 29/10/2026 |
 | Pasta local | Na máquina original, `D:\projects\fiap\FIAP-Lisura`; a renomeação para `FIAP-Certamis` continua pendente |
 

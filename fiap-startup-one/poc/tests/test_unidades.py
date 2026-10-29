@@ -18,6 +18,14 @@ def test_cpf_de_referencia():
     assert not cpf.valido("11111111111") and not cpf.valido("123") and not cpf.valido("5299822472a")
 
 
+def test_cpf_por_indice_bate_com_o_gerador_de_carga():
+    # Valores calculados por cpfSintetico de carga/ultimo-dia.js, no node. As duas
+    # implementações foram comparadas em 2.000 índices em 29/10/2026.
+    assert cpf.por_indice(0, 8) == "80000000086"
+    assert cpf.por_indice(12345, 9) == "90001234536"
+    assert all(cpf.valido(cpf.por_indice(i, p)) for i in range(0, 50000, 7) for p in (8, 9))
+
+
 def test_cpf_sintetico_sempre_valido():
     rng = random.Random(1)
     assert all(cpf.valido(cpf.sintetico(rng)) for _ in range(2000))

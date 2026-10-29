@@ -23,3 +23,10 @@ def sintetico(rng: random.Random) -> str:
         cpf = "".join(map(str, _digitos([rng.randint(0, 9) for _ in range(9)])))
         if valido(cpf):
             return cpf
+
+
+def por_indice(n: int, prefixo: int = 8) -> str:
+    """O mesmo CPF que o gerador de carga calcula para o índice n (carga/ultimo-dia.js).
+    Prefixo 8 para contas semeadas, 9 para contas criadas durante o ensaio."""
+    base = [int(x) for x in str(prefixo * 100_000_000 + n % 99_999_999).zfill(9)]
+    return "".join(map(str, _digitos(base)))
