@@ -6,17 +6,8 @@ Uso: python -m app.semear [quantidade_de_candidatos]
 import random
 import sys
 
+from app.cpf import sintetico as cpf_sintetico
 from app.config import carregar
-
-
-def cpf_sintetico(rng: random.Random) -> str:
-    """CPF com dígitos verificadores válidos, gerado ao acaso. Não é de ninguém de propósito,
-    mas pode coincidir com um real; por isso nunca sai deste ambiente."""
-    base = [rng.randint(0, 9) for _ in range(9)]
-    for n in (10, 11):
-        s = sum(d * p for d, p in zip(base, range(n, 1, -1)))
-        base.append(0 if s % 11 < 2 else 11 - s % 11)
-    return "".join(map(str, base))
 
 
 def semear(url: str, n: int, semente: int = 42) -> None:

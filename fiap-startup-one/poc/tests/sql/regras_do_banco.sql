@@ -7,14 +7,21 @@ SET client_min_messages = warning;
 
 -- Dado sintético mínimo: uma banca, um certame com edital v1, um candidato.
 INSERT INTO banca (nome) VALUES ('Banca Sintética');
-INSERT INTO certame (banca_id, nome, taxa_centavos, inscricao_inicio, inscricao_fim)
-VALUES (1, 'Certame Sintético', 8000, now() - interval '1 day', now() + interval '29 days');
+INSERT INTO certame (banca_id, nome, taxa_centavos, isencao_inicio, isencao_fim,
+                     inscricao_inicio, inscricao_fim)
+VALUES (1, 'Certame Sintético', 8000, now() - interval '2 days', now() + interval '5 days',
+        now() - interval '1 day', now() + interval '29 days');
 INSERT INTO certame (banca_id, nome, taxa_centavos, inscricao_inicio, inscricao_fim)
 VALUES (1, 'Certame sem edital', 8000, now() - interval '1 day', now() + interval '29 days');
 INSERT INTO edital_versao (certame_id, versao, descricao) VALUES (1, 1, 'edital original');
 INSERT INTO candidato (cpf, nome, email) VALUES
     ('00000000191', 'Candidato Um', 'um@exemplo.invalid'),
     ('00000000272', 'Candidato Dois', 'dois@exemplo.invalid');
+INSERT INTO cargo (certame_id, nome, vagas) VALUES (1, 'Analista', 10);
+INSERT INTO cidade_prova (certame_id, nome) VALUES (1, 'Sede');
+INSERT INTO modalidade (certame_id, codigo, nome) VALUES (1, 'AMPLA', 'Ampla concorrência');
+INSERT INTO hipotese_isencao (certame_id, codigo, nome, exige_nis, exige_comprovante)
+VALUES (1, 'CADUNICO', 'Inscrito no CadÚnico', true, false);
 
 CREATE FUNCTION pg_temp.espera_erro(sql text, codigo text) RETURNS void
 LANGUAGE plpgsql AS $$
@@ -66,17 +73,17 @@ SELECT pg_temp.ctx('candidato:00000000191', 'tentativa de pular etapa');
 SELECT pg_temp.espera_erro($q$UPDATE inscricao SET estado = 'PAGA' WHERE candidato_id = 1$q$, 'CT001');
 SELECT pg_temp.espera_erro($q$UPDATE inscricao SET estado = 'HOMOLOGADA' WHERE candidato_id = 1$q$, 'CT001');
 
--- 7. Transição válida sem motivo é recusada.
-SELECT set_config('certamis.motivo', '', false);
-SELECT pg_temp.espera_erro(
-    $q$UPDATE inscricao SET estado = 'AGUARDANDO_PAGAMENTO' WHERE candidato_id = 1$q$, 'CT002');
-
--- 8. Dados mudam em RASCUNHO, sem gerar transição.
-INSERT INTO cargo (certame_id, nome, vagas) VALUES (1, 'Analista', 10);
-UPDATE inscricao SET cargo_id = 1 WHERE candidato_id = 1;
+-- 7. Dados mudam em RASCUNHO, sem gerar transição.
+UPDATE inscricao SET cargo_id = 1, cidade_id = 1, modalidade_id = 1,
+                     declaracoes_aceitas_em = now() WHERE candidato_id = 1;
 DO $$ BEGIN
     ASSERT (SELECT count(*) FROM inscricao_transicao WHERE inscricao_id = (SELECT id FROM inscricao WHERE candidato_id = 1)) = 1;
 END $$;
+
+-- 8. Transição válida sem motivo é recusada.
+SELECT set_config('certamis.motivo', '', false);
+SELECT pg_temp.espera_erro(
+    $q$UPDATE inscricao SET estado = 'AGUARDANDO_PAGAMENTO' WHERE candidato_id = 1$q$, 'CT002');
 
 -- 9. Caminho completo do pagante, com retificação do edital no meio.
 SELECT pg_temp.ctx('candidato:00000000191', 'finalizou o formulário');
@@ -127,8 +134,12 @@ SELECT pg_temp.espera_erro($q$DELETE FROM inscricao WHERE candidato_id = 1$q$, '
 
 -- 15. Caminho do isento indeferido com recurso provido.
 SELECT pg_temp.ctx('candidato:00000000272', 'inscrição iniciada');
-INSERT INTO inscricao (certame_id, candidato_id) VALUES (1, 2);
-SELECT pg_temp.ctx('candidato:00000000272', 'isenção deferida');
+INSERT INTO inscricao (certame_id, candidato_id, cargo_id, cidade_id, modalidade_id, declaracoes_aceitas_em) VALUES (1, 2, 1, 1, 1, now());
+SELECT pg_temp.ctx('candidato:00000000272', 'pedido de isenção');
+INSERT INTO pedido_isencao (certame_id, candidato_id, hipotese, nis) VALUES (1, 2, 'CADUNICO', '12034567899');
+SELECT pg_temp.ctx('banca:analista7', 'CadÚnico conferido');
+UPDATE pedido_isencao SET estado = 'DEFERIDA' WHERE candidato_id = 2;
+SELECT pg_temp.ctx('candidato:00000000272', 'finalizou como isento');
 UPDATE inscricao SET estado = 'ISENCAO_ATIVA' WHERE candidato_id = 2;
 SELECT pg_temp.ctx('sistema', 'fim do prazo');
 UPDATE inscricao SET estado = 'EM_ANALISE' WHERE candidato_id = 2;
@@ -148,7 +159,7 @@ INSERT INTO candidato (cpf, nome, email) VALUES
     ('00000000353', 'Candidato Três', 'tres@exemplo.invalid'),
     ('00000000434', 'Candidato Quatro', 'quatro@exemplo.invalid');
 SELECT pg_temp.ctx('candidato:00000000353', 'inscrição iniciada');
-INSERT INTO inscricao (certame_id, candidato_id, cargo_id) VALUES (1, 3, 1);
+INSERT INTO inscricao (certame_id, candidato_id, cargo_id, cidade_id, modalidade_id, declaracoes_aceitas_em) VALUES (1, 3, 1, 1, 1, now());
 SELECT pg_temp.ctx('candidato:00000000353', 'finalizou o formulário');
 UPDATE inscricao SET estado = 'AGUARDANDO_PAGAMENTO' WHERE candidato_id = 3;
 SELECT pg_temp.espera_erro($q$UPDATE inscricao SET cargo_id = 2 WHERE candidato_id = 3$q$, 'CT004');
@@ -173,7 +184,7 @@ END $$;
 
 -- 17. Depois de PAGA, nem cancelar nem voltar ao rascunho.
 SELECT pg_temp.ctx('candidato:00000000434', 'inscrição iniciada');
-INSERT INTO inscricao (certame_id, candidato_id) VALUES (1, 4);
+INSERT INTO inscricao (certame_id, candidato_id, cargo_id, cidade_id, modalidade_id, declaracoes_aceitas_em) VALUES (1, 4, 1, 1, 1, now());
 SELECT pg_temp.ctx('candidato:00000000434', 'finalizou');
 UPDATE inscricao SET estado = 'AGUARDANDO_PAGAMENTO' WHERE candidato_id = 4;
 SELECT pg_temp.ctx('sistema:conciliacao', 'pagamento confirmado');
@@ -185,8 +196,12 @@ SELECT pg_temp.espera_erro($q$UPDATE inscricao SET estado = 'RASCUNHO' WHERE can
 -- 18. Decisão 2 (29/10/2026): recurso negado é estado final e não volta a ser homologável.
 INSERT INTO candidato (cpf, nome, email) VALUES ('00000000515', 'Candidato Cinco', 'cinco@exemplo.invalid');
 SELECT pg_temp.ctx('candidato:00000000515', 'inscrição iniciada');
-INSERT INTO inscricao (certame_id, candidato_id) VALUES (1, 5);
-SELECT pg_temp.ctx('candidato:00000000515', 'isenção deferida');
+INSERT INTO inscricao (certame_id, candidato_id, cargo_id, cidade_id, modalidade_id, declaracoes_aceitas_em) VALUES (1, 5, 1, 1, 1, now());
+SELECT pg_temp.ctx('candidato:00000000515', 'pedido de isenção');
+INSERT INTO pedido_isencao (certame_id, candidato_id, hipotese, nis) VALUES (1, 5, 'CADUNICO', '17000000013');
+SELECT pg_temp.ctx('banca:analista7', 'CadÚnico conferido');
+UPDATE pedido_isencao SET estado = 'DEFERIDA' WHERE candidato_id = 5;
+SELECT pg_temp.ctx('candidato:00000000515', 'finalizou como isento');
 UPDATE inscricao SET estado = 'ISENCAO_ATIVA' WHERE candidato_id = 5;
 SELECT pg_temp.ctx('sistema', 'fim do prazo');
 UPDATE inscricao SET estado = 'EM_ANALISE' WHERE candidato_id = 5;
