@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="light">
+<head>
+<meta charset="utf-8">
+<title>Certamis · defesa da estratégia multicloud</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Serif:wght@600;700&display=swap" rel="stylesheet">
+<style>
+@page{size:1280px 720px;margin:0}
+
+:root{
+  --ink:#16191c; --gy:#6b7280; --ln:#d9dcdf; --bg:#fffefb;
+  --teal:#0f5e5c; --tealD:#0b4a49;
+  --rd:#9c2b2b; --rdBg:#fae8e8; --rdLn:#e2b6b6;
+  --gr:#1f6b42; --grBg:#dcece2; --grLn:#a9c9b7;
+  --bl:#12525c; --blBg:#dde9ef; --blLn:#a9c4cf;
+  --am:#8a5a12; --amBg:#f8ecd2; --amLn:#ddbd7d;
+  --nt:#f5f6f7; --ntLn:#e3e5e8;
+  --serif:"IBM Plex Serif",Georgia,"Times New Roman",serif;
+  --sans:"Segoe UI",system-ui,-apple-system,Arial,sans-serif;
+  --mono:"IBM Plex Mono",Consolas,"Courier New",monospace;
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#fff}
+body{font-family:var(--sans);color:var(--ink);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+
+.slide{
+  width:1280px;height:720px;background:var(--bg);
+  padding:34px 46px 0;position:relative;overflow:hidden;
+  page-break-after:always;break-after:page;
+  display:flex;flex-direction:column;
+}
+.slide:last-of-type{page-break-after:auto;break-after:auto}
+
+/* ── cabecalho ───────────────────────────────────────────── */
+.hd{display:flex;align-items:baseline;gap:14px;padding-bottom:12px;border-bottom:1px solid var(--ln)}
+.hd .n{font-family:var(--mono);font-size:15px;font-weight:600;color:var(--teal);letter-spacing:.06em}
+.hd h1{font-family:var(--serif);font-weight:700;font-size:31px;line-height:1.1;margin:0;flex:1}
+.hd .t{font-family:var(--mono);font-size:13px;color:#9aa1a8;letter-spacing:.06em;white-space:nowrap}
+
+/* ── rodape ──────────────────────────────────────────────── */
+.ft{position:absolute;left:46px;right:46px;bottom:22px;display:flex;justify-content:space-between;
+    padding-top:9px;border-top:1px solid var(--ln);
+    font-family:var(--mono);font-size:11px;letter-spacing:.09em;color:#9aa1a8}
+.ft b{color:var(--teal);font-weight:600}
+
+/* ── corpo ───────────────────────────────────────────────── */
+.body{flex:1;display:flex;flex-direction:column;justify-content:center;padding:24px 0 74px}
+.body.tight{padding:14px 0 74px}
+.body>*:first-child{margin-top:0}
+.lead{font-family:var(--serif);font-weight:700;font-size:26px;line-height:1.24;margin:0 0 16px}
+.intro{font-size:16px;color:#3d4348;margin:0 0 12px}
+
+/* ── tabelas ─────────────────────────────────────────────── */
+table{width:100%;border-collapse:collapse;font-size:15.5px}
+th{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+   color:var(--gy);text-align:left;padding:0 10px 7px;border-bottom:1px solid var(--ln);white-space:nowrap}
+th.r,td.r{text-align:right}
+th.c,td.c{text-align:center}
+td{padding:9px 10px;border-bottom:1px solid #ebedef;vertical-align:top}
+tr.hi td{background:var(--rdBg)}
+tr.ok td{background:var(--grBg)}
+td.num{font-family:var(--mono);font-size:14.5px}
+td.no{font-family:var(--mono);font-weight:600;color:var(--rd);text-align:right}
+td.si{font-family:var(--mono);font-weight:600;color:var(--gr);text-align:right}
+td.dbt{font-family:var(--mono);font-size:12.5px;color:var(--gy);text-align:center;white-space:nowrap}
+.sub{display:block;font-size:12.5px;color:var(--gy);font-weight:400;margin-top:1px}
+table.t8 td{padding:6.5px 10px;font-size:15px}
+
+/* ── caixas ──────────────────────────────────────────────── */
+.box{border:1px solid var(--ntLn);background:var(--nt);border-radius:5px;padding:13px 16px;font-size:15px;line-height:1.42}
+.box.bl{border-color:var(--blLn);background:var(--blBg)}
+.box.gr{border-color:var(--grLn);background:var(--grBg)}
+.box.rd{border-color:var(--rdLn);background:var(--rdBg)}
+.box.am{border-color:var(--amLn);background:var(--amBg)}
+.box .lbl{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+          color:var(--gy);display:block;margin-bottom:5px}
+.banner{border:2px solid var(--tealD);background:var(--blBg);border-radius:5px;padding:15px;text-align:center;
+        font-family:var(--serif);font-weight:700;font-size:22px;color:var(--tealD);line-height:1.25}
+.banner.rd{border-color:var(--rd);background:var(--rdBg);color:var(--rd)}
+.banner small{display:block;font-family:var(--sans);font-weight:400;font-size:15px;margin-top:6px}
+
+/* ── grades ──────────────────────────────────────────────── */
+.grid{display:grid;gap:12px}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--ntLn);border-radius:5px;overflow:hidden}
+.stats div{padding:13px 8px;text-align:center;border-right:1px solid var(--ntLn)}
+.stats div:last-child{border-right:0}
+.stats b{display:block;font-family:var(--serif);font-weight:700;font-size:30px;color:var(--teal);line-height:1.05}
+.stats span{display:block;font-size:12.5px;color:var(--gy);margin-top:4px;line-height:1.3}
+
+.tile{border:1px solid var(--ntLn);background:var(--nt);border-radius:5px;padding:10px 8px;text-align:center}
+.tile .k{font-family:var(--serif);font-weight:700;font-size:19px;color:var(--gy);line-height:1}
+.tile .v{font-size:13.5px;margin-top:4px}
+.tile .s{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;margin-top:5px;color:var(--gy)}
+.tile.ok{border-color:var(--grLn);background:var(--grBg)}
+.tile.ok .k{color:var(--gr)}
+.tile.no{border-color:var(--rdLn);background:var(--rdBg)}
+.tile.no .k{color:var(--rd)}
+.tile.no .s{color:var(--rd);font-weight:600}
+
+/* painel de custo */
+.panel{border:1px solid;border-radius:5px;padding:13px 15px}
+.panel.rd{border-color:var(--rdLn);background:var(--rdBg)}
+.panel.gr{border-color:var(--grLn);background:var(--grBg)}
+.panel .lbl{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+            display:block;margin-bottom:8px}
+.panel.rd .lbl{color:var(--rd)}
+.panel.gr .lbl{color:var(--gr)}
+.panel table{font-size:14.5px}
+.panel td{padding:6.5px 4px;border-bottom:1px solid rgba(0,0,0,.07)}
+.panel tr:last-child td{border-bottom:0}
+.panel tr.tot td{font-weight:700;border-top:1px solid rgba(0,0,0,.18);border-bottom:0;padding-top:8px}
+.panel .cov{margin-top:9px;font-weight:700;font-size:14px}
+.panel.rd .cov{color:var(--rd)}
+.panel.gr .cov{color:var(--gr)}
+
+/* lista de pros e contras */
+.pc{font-size:14.5px}
+.pc td{padding:7px 8px}
+.pc .ic{width:26px;text-align:center;padding-right:0}
+.pc .vd{font-family:var(--mono);font-size:13px;text-align:right;white-space:nowrap}
+
+/* o diagrama e limitado pela ALTURA, nao pela largura */
+.diag{width:100%;text-align:center}
+.diag img{max-height:520px;max-width:100%;width:auto;display:block;margin:0 auto}
+
+/* ── capa ────────────────────────────────────────────────── */
+.cvb{flex:1;display:flex;flex-direction:column;justify-content:center;padding:0 0 74px}
+.cvb .kick{font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.14em;color:var(--teal)}
+.cvb .nm{font-family:var(--serif);font-weight:700;font-size:66px;line-height:1;margin-top:14px}
+.cvb .q{font-family:var(--serif);font-weight:700;font-size:31px;color:var(--tealD);margin-top:20px}
+.cvb .ds{font-size:16.5px;color:#3d4348;margin:10px 0 0;line-height:1.45}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:36px}
+.steps div{border:1px solid var(--ntLn);border-top:3px solid var(--teal);background:var(--nt);border-radius:5px;padding:12px 14px}
+.steps b{display:block;font-family:var(--serif);font-size:23px;color:var(--teal);line-height:1}
+.steps span{display:block;font-size:14.5px;line-height:1.35;margin-top:7px}
+.steps i{display:block;font-style:normal;font-family:var(--mono);font-size:11px;letter-spacing:.05em;color:var(--gy);margin-top:7px}
+
+/* ── roteiro ─────────────────────────────────────────────── */
+.cover,.notes{display:none}
+[data-mode="roteiro"] .slide{
+  width:1280px;height:720px;padding:34px 46px 0;
+  transform:scale(.536);transform-origin:top left;
+  border:1px solid var(--ln);page-break-after:auto;break-after:auto;
+}
+[data-mode="roteiro"] .thumb{width:688px;height:388px;overflow:hidden;margin-bottom:14px}
+[data-mode="roteiro"] .page{page-break-after:always;break-after:page}
+[data-mode="roteiro"] .page:last-of-type{page-break-after:auto;break-after:auto}
+[data-mode="roteiro"] .notes{display:block;font-size:13.5px;line-height:1.5;color:#22262a}
+[data-mode="roteiro"] .notes p{margin:0 0 9px}
+[data-mode="roteiro"] .notes b{color:var(--tealD)}
+[data-mode="roteiro"] .notes .mk{margin-top:11px;padding:9px 12px;background:var(--amBg);border-left:3px solid var(--amLn);
+  font-size:12.5px;color:#5c4415}
+[data-mode="roteiro"] .notes .mk b{color:var(--am);font-family:var(--mono);font-size:10.5px;letter-spacing:.1em}
+[data-mode="roteiro"] .cover{display:block;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid var(--tealD)}
+[data-mode="roteiro"] .cover h1{font-family:var(--serif);font-size:25px;margin:0 0 4px;color:var(--tealD)}
+[data-mode="roteiro"] .cover p{margin:0;font-size:13px;color:var(--gy)}
+[data-mode="roteiro"] .cover .th{margin-top:9px;font-family:var(--serif);font-weight:700;font-size:17px;color:var(--ink)}
+[data-mode="roteiro"] .ft{display:none}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════ 0 · capa ══════════════════════════ -->
+<section class="page">
+<div class="cover">
+  <h1>Certamis · defesa da estratégia multicloud</h1>
+  <p>Roteiro do apresentador · Soluções Multicloud · FIAP · 1 apresentador · 4 a 6 min de defesa mais 2 a 4 min de discussão</p>
+  <div class="th">Uma nuvem para operar, duas para sobreviver.</div>
+</div>
+<div class="thumb"><div class="slide">
+  <div class="cvb">
+    <div class="kick">SOLUÇÕES MULTICLOUD · FIAP · TRABALHO FINAL</div>
+    <div class="nm">Certamis</div>
+    <div class="q">A Certamis deve adotar multicloud?</div>
+    <p class="ds">Plataforma que conduz concursos públicos do edital ao resultado, vendida para as bancas organizadoras.</p>
+    <div class="steps">
+      <div><b>1</b><span>A empresa e a pergunta certa</span><i>SLIDES 1 E 2</i></div>
+      <div><b>2</b><span>O que derruba o sistema, prós e contras, e a conta</span><i>SLIDES 3 A 5</i></div>
+      <div><b>3</b><span>O que sai da AWS e a arquitetura alvo</span><i>SLIDES 6 E 7</i></div>
+      <div><b>4</b><span>Quando mudaríamos de ideia</span><i>SLIDE 8</i></div>
+    </div>
+  </div>
+  <div class="ft"><span><b>CERTAMIS</b> · SOLUÇÕES MULTICLOUD</span><span>FIAP · APRESENTAÇÃO</span></div>
+</div></div>
+<div class="notes">
+  <p>Boa noite. Sou <b>[seu nome]</b>, e apresento a estratégia de nuvem da Certamis, a empresa do Startup One. <b>A pergunta é uma só: ela deve adotar multicloud?</b> Respondo em quatro passos, que estão na tela.</p>
+  <div class="mk"><b>MARCAÇÃO:</b> 0:00 a 0:15. Diga o nome devagar e aponte os quatro passos sem lê-los. Não antecipe a resposta: ela é a primeira frase do slide 2, e perde força se vier antes. Os quatro passos seguem os itens do enunciado: a empresa, a defesa com prós e contras, a arquitetura e a condição de validade.</div>
+</div>
+</section>
+
+<!-- ══════════════════════════ 1 ══════════════════════════ -->
+<section class="page">
+<div class="thumb"><div class="slide">
+  <div class="hd"><span class="n">01</span><h1>Certamis: o produto, a nuvem e onde estamos</h1><span class="t">0:15 – 1:10 · 55s</span></div>
+  <div class="body tight">
+    <p class="lead">A carga de um certame cabe em poucas horas. E essas horas têm data marcada em edital.</p>
+    <table>
+      <tr><th>Os cinco picos de um certame</th><th>Quem acessa</th><th>Por que dói</th></tr>
+      <tr><td><b>1 ·</b> Encerramento da <b>isenção</b></td><td>quem pede isenção</td><td>prazo anterior, já concentrado</td></tr>
+      <tr class="hi"><td><b>2 · Encerramento da inscrição</b></td><td>quem ainda não se inscreveu</td><td><b>escrita pesada</b>, e escrita não sai no CDN</td></tr>
+      <tr><td><b>3 · Cartão de confirmação</b></td><td><b>a base inteira</b></td><td>leitura em massa</td></tr>
+      <tr><td><b>4 · Gabarito</b> e recurso</td><td><b>a base inteira</b></td><td>leitura, depois escrita em massa</td></tr>
+      <tr><td><b>5 · Resultado</b> e classificação</td><td><b>a base inteira</b></td><td>o maior em requisições</td></tr>
+    </table>
+    <div class="stats" style="margin-top:16px">
+      <div><b>45</b><span>bancas<br>organizadoras</span></div>
+      <div><b>4,8 mi</b><span>inscrições<br>por ano</span></div>
+      <div><b>16,7 mil/h</b><span>o pico de escrita<br>de um certame grande</span></div>
+      <div><b>R$ 17,1 mi</b><span>ARR · EBITDA<br>+R$ 3,4 mi</span></div>
+    </div>
+  </div>
+  <div class="ft"><span><b>CERTAMIS</b> · SOLUÇÕES MULTICLOUD</span><span>FIAP · 1 / 8</span></div>
+</div></div>
+<div class="notes">
+  <p><b>A Certamis conduz um processo seletivo público de ponta a ponta</b>, do edital ao resultado. Vendemos para as bancas organizadoras, as empresas que prefeituras e universidades contratam para fazer concursos.</p>
+  <p><b>Por que nuvem?</b> Porque um certame concentra a carga em poucas horas, e são cinco picos, não um. Nos de cartão, gabarito e resultado a base inteira acessa ao mesmo tempo, mas é leitura, e sai do CDN. <b>O pico perigoso é o da inscrição, porque é escrita:</b> dezesseis mil e setecentas inscrições por hora num certame de trezentos mil candidatos. E a data está no edital, meses antes.</p>
+  <p><b>Onde estamos:</b> ano cinco, quarenta e cinco bancas, dezessete milhões de receita, depois do breakeven. O conselho perguntou: e se a nuvem cair? Não deveríamos estar em duas?</p>
+  <div class="mk"><b>MARCAÇÃO:</b> plante os cinco picos aqui, e plante que o pico perigoso é o de escrita. O slide 3 depende de a plateia já ter entendido isso.</div>
+</div>
+</section>
+
+<!-- ══════════════════════════ 2 ══════════════════════════ -->
+<section class="page">
+<div class="thumb"><div class="slide">
+  <div class="hd"><span class="n">02</span><h1>A pergunta certa</h1><span class="t">1:10 – 1:40 · 30s</span></div>
+  <div class="body tight">
+    <div class="banner" style="font-size:24px;padding:18px 15px">
+      ADOTAR MULTICLOUD?<br>
+      <span style="color:#9c2b2b">NÃO</span> para operar.
+      <span style="color:#1f6b42">SIM</span> para sobreviver.
+    </div>
+    <div class="grid g4" style="margin-top:13px">
+      <div class="tile ok"><div class="k">1</div><div class="v">Backup &amp; restore</div><div class="s">FICAMOS · restauração numa 2ª nuvem</div></div>
+      <div class="tile"><div class="k">2</div><div class="v">Pilot light</div><div class="s">&nbsp;</div></div>
+      <div class="tile no"><div class="k">3</div><div class="v">Warm standby</div><div class="s">REJEITAMOS</div></div>
+      <div class="tile no"><div class="k">4</div><div class="v">Ativo-ativo</div><div class="s">REJEITAMOS</div></div>
+    </div>
+    <div class="box am" style="margin-top:13px">
+      <span class="lbl">Antes da conta, a pergunta precisa ser bem formulada</span>
+      <b>Não é "A ou B".</b> O endurecimento da nuvem única custa <b>R$ 900 mil/ano e já está no
+      orçamento</b>: é o piso. Sem ele, a segunda nuvem cai pelo mesmo motivo que a primeira.<br>
+      <b>A pergunta real é marginal: sobre o que já existe, vale somar uma segunda nuvem sempre ligada?</b>
+    </div>
+  </div>
+  <div class="ft"><span><b>CERTAMIS</b> · SOLUÇÕES MULTICLOUD</span><span>FIAP · 2 / 8</span></div>
+</div></div>
+<div class="notes">
+  <p>Nossa resposta: <b>não para operar, sim para sobreviver.</b> Controle, backup e restauração ficam fora da AWS, e mostro isso no slide seis. Na régua de continuidade, ficamos no nível um, com a restauração testada numa segunda nuvem.</p>
+  <p><b>E a pergunta precisa ser bem formulada.</b> O endurecimento da nuvem única já está no orçamento, novecentos mil por ano. É o piso. A pergunta real é: <b>sobre isso, vale somar uma segunda nuvem sempre ligada?</b></p>
+  <div class="mk"><b>MARCAÇÃO:</b> este slide existe para impedir a objeção "vocês compararam coisas diferentes". Dizer a tese antes de defendê-la, e reformular a pergunta antes de mostrar a conta.</div>
+</div>
+</section>
+
+<!-- ══════════════════════════ 3 ══════════════════════════ -->
+<section class="page">
+<div class="thumb"><div class="slide">
+  <div class="hd"><span class="n">03</span><h1>O que realmente derruba o sistema</h1><span class="t">1:40 – 2:30 · 50s</span></div>
+  <div class="body tight">
+    <p class="intro">Quando a notícia diz <i>“site do concurso fora do ar no último dia”</i>, a causa é uma destas:</p>
+    <table class="t8">
+      <tr><th>Falha</th><th class="c">Dívida de origem</th><th class="r">Multicloud resolve?</th></tr>
+      <tr><td>Pool de conexões do banco esgotado no pico</td><td class="dbt">D2</td><td class="no">não</td></tr>
+      <tr><td>Geração síncrona de boleto e cartão consumindo a CPU</td><td class="dbt">D3</td><td class="no">não</td></tr>
+      <tr><td>Todos entram, todos degradam, ninguém completa</td><td class="dbt">D4</td><td class="no">não</td></tr>
+      <tr><td>Capacidade nunca ensaiada para o pico</td><td class="dbt">D1</td><td class="no">não</td></tr>
+      <tr><td>Escalonamento reativo chegando tarde</td><td class="dbt">D8</td><td class="no">não</td></tr>
+      <tr><td>Um certame gigante degradando os outros inquilinos</td><td class="dbt">D7</td><td class="no">não</td></tr>
+      <tr><td>Ataque à aplicação: invasão ou negação de serviço</td><td class="dbt">D9</td><td class="no">não</td></tr>
+      <tr class="ok"><td><b>Queda regional total do provedor</b></td><td class="dbt" style="color:#1f6b42">nenhuma</td><td class="si">sim</td></tr>
+    </table>
+    <div class="banner rd" style="margin-top:13px;font-size:21px">
+      Sete das oito são dívidas nossas. Uma segunda nuvem não muda nenhuma delas.
+      <small>E nas falhas de certame documentadas em 2026 (Alece, AgSUS, FGV), nenhuma foi do provedor de nuvem.</small>
+    </div>
+  </div>
+  <div class="ft"><span><b>CERTAMIS</b> · SOLUÇÕES MULTICLOUD</span><span>FIAP · 3 / 8</span></div>
+</div></div>
+<div class="notes">
+  <p><b>Este é o argumento que decide.</b> Quando o site do concurso cai no último dia, a causa é uma destas oito. <b>Sete são dívidas nossas</b>, levantadas antes desta discussão, e estão na coluna do meio. Uma segunda nuvem rodando o mesmo software esgota o mesmo pool e sofre o mesmo ataque. <b>Replica o gargalo, não a capacidade.</b></p>
+  <p><b>E a realidade confirma.</b> Em 2026, a Alece teve falha no sistema da banca, a prova on-line da AgSUS foi anulada por falha da própria banca, e a FGV caiu por um ataque. <b>Em nenhum dos três a culpa foi do provedor de nuvem.</b></p>
+  <p>Nas fases de prazo, essa falha costuma ter remédio barato, que é reabrir o prazo. Costuma, não sempre.</p>
+  <div class="mk"><b>MARCAÇÃO:</b> pausa depois de "dívidas nossas". Este slide é a defesa inteira. Se só um slide ficar na memória da banca, tem que ser este. A coluna do meio responde a "essa lista é de vocês?", e a linha de baixo do quadro vermelho responde a "isso acontece na prática?". Se perguntarem pela linha de ataque, ela entrou depois do caso FGV, e a defesa contra ela já está no slide 6.</div>
+</div>
+</section>
+
+<!-- ══════════════════════════ 4 ══════════════════════════ -->
+<section class="page">
+<div class="thumb"><div class="slide">
+  <div class="hd"><span class="n">04</span><h1>Prós e contras</h1><span class="t">2:30 – 3:20 · 50s</span></div>
+  <div class="body">
+    <div class="grid g2">
+      <div>
+        <table class="pc">
+          <tr><th colspan="2">Prós · 8 analisados, 1 válido</th></tr>
+          <tr><td class="ic">❌</td><td>Exigência regulatória de continuidade</td></tr>
+          <tr><td class="ic">❌</td><td>Diversidade de fornecedor de IA</td></tr>
+          <tr><td class="ic">❌</td><td>Soberania em expansão internacional</td></tr>
+          <tr><td class="ic">❌</td><td>Arbitragem de custo entre provedores</td></tr>
+          <tr><td class="ic">⚠️</td><td>Descorrelação de risco com o cliente</td></tr>
+          <tr><td class="ic">⚠️</td><td>Evitar <i>lock-in</i>, e egresso grátis só na saída</td></tr>
+          <tr><td class="ic">⚠️</td><td>Poder de negociação fragmenta o desconto</td></tr>
+          <tr class="ok"><td class="ic">✅</td><td><b>Resiliência a falha de provedor</b>, o único</td></tr>
+        </table>
+      </div>
+      <div>
+        <table class="pc">
+          <tr><th colspan="2">Contras</th><th class="r">O dinheiro resolve?</th></tr>
+          <tr class="hi"><td class="ic">🔴</td><td><b>Eficácia</b>, cobre 1 das 8 falhas</td><td class="vd">não</td></tr>
+          <tr class="hi"><td class="ic">🔴</td><td><b>Memória operacional</b> em time de 5 pessoas</td><td class="vd">não</td></tr>
+          <tr><td class="ic">🟡</td><td>Talento: <b>64%</b> sem expertise, só <b>8%</b> maduras</td><td class="vd">em parte</td></tr>
+          <tr><td class="ic">🟡</td><td>Custo: 36% do EBITDA</td><td class="vd">sim</td></tr>
+          <tr><td class="ic">🟡</td><td>Superfície de segurança dobrada</td><td class="vd">sim</td></tr>
+          <tr><td class="ic">🟡</td><td>Menor denominador comum</td><td class="vd">não</td></tr>
+        </table>
+        <div class="box" style="margin-top:12px;font-size:14px">
+          <b>78%</b> do mercado já vai para multicloud · <b>92%</b> das grandes empresas operam assim<br>
+          <span style="color:#6b7280;font-size:13px">Forrester / HashiCorp 2024 · Flexera 2025 · Gartner</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="ft"><span><b>CERTAMIS</b> · SOLUÇÕES MULTICLOUD</span><span>FIAP · 4 / 8</span></div>
+</div></div>
+<div class="notes">
+  <p>O enunciado pede prós e contras. <b>Dos oito prós clássicos, um sobrevive aqui:</b> resiliência a falha do provedor, que é a última linha do slide anterior. Exigência regulatória não existe, e arbitragem de custo não serve para carga interativa.</p>
+  <p>Nos contras, a coluna que importa é <b>o que o dinheiro resolve.</b> Talento, custo e segurança se compram. <b>Eficácia e memória operacional, não.</b> E memória não é teste: o gerador de carga exercitaria o failover, mas não ensina cinco pessoas de plantão a operar um caminho que roda uma vez a cada quatro anos.</p>
+  <p>E o dado contra nós: <b>setenta e oito por cento do mercado vai para multicloud</b>, segundo a Forrester. O ônus da prova é nosso.</p>
+  <div class="mk"><b>MARCAÇÃO:</b> este slide sozinho cobre dois critérios de avaliação: prós e contras explícitos, e dado de instituto na tela. Se o tempo apertar, leia só a linha verde e as duas vermelhas.</div>
+</div>
+</section>
+
+<!-- ══════════════════════════ 5 ══════════════════════════ -->
+<section class="page">
+<div class="thumb"><div class="slide">
+  <div class="hd"><span class="n">05</span><h1>A conta, feita na margem</h1><span class="t">3:20 – 4:05 · 45s</span></div>
+  <div class="body tight">
+    <div class="grid g2">
+      <div class="panel gr">
+        <span class="lbl">O piso · já no orçamento</span>
+        <table>
+          <tr><td>Células por porte de certame</td><td class="num r">280 mil</td></tr>
+          <tr><td>Ensaio de carga contratualizado</td><td class="num r">120 mil</td></tr>
+          <tr><td>Fila de espera na borda</td><td class="num r">120 mil</td></tr>
+          <tr><td>Controle, backup e restauração fora da AWS</td><td class="num r">170 mil</td></tr>
+          <tr><td>Publicação estática e geração assíncrona</td><td class="num r">90 mil</td></tr>
+          <tr><td>Escalonamento por calendário e restauração</td><td class="num r">120 mil</td></tr>
+          <tr class="tot"><td>Total</td><td class="num r">R$ 900 mil</td></tr>
+        </table>
+        <div class="cov">Cobre as 7 falhas nossas, e volta da 8ª em ~8 h.</div>
+      </div>
+      <div class="panel rd">
+        <span class="lbl">O que a segunda nuvem sempre ligada somaria</span>
+        <table>
+          <tr><td>2 engenheiros de plataforma</td><td class="num r">660 mil</td></tr>
+          <tr><td>Landing zone e replicação entre nuvens</td><td class="num r">240 mil</td></tr>
+          <tr><td>Capacidade de standby</td><td class="num r">200 mil</td></tr>
+          <tr><td>Ferramental duplicado</td><td class="num r">120 mil</td></tr>
+          <tr><td style="color:#9c2b2b">&nbsp;</td><td class="num r">&nbsp;</td></tr>
+          <tr><td style="color:#9c2b2b">&nbsp;</td><td class="num r">&nbsp;</td></tr>
+          <tr class="tot"><td>Total marginal</td><td class="num r">R$ 1,22 mi</td></tr>
+        </table>
+        <div class="cov">Só encurta a 8ª falha, de 8 para 4 horas.</div>
+      </div>
+    </div>
+    <div class="banner rd" style="margin-top:13px;font-size:23px">
+      R$ 1,22 milhão por hora de indisponibilidade evitada.
+      <small>4 horas de RTO, num evento a cada 4 anos, numa falha que quase sempre se resolve reabrindo o prazo.</small>
+    </div>
+  </div>
+  <div class="ft"><span><b>CERTAMIS</b> · SOLUÇÕES MULTICLOUD</span><span>FIAP · 5 / 8</span></div>
+</div></div>
+<div class="notes">
+  <p><b>A conta, na margem.</b> À esquerda, o piso já pago: novecentos mil por ano. Cobre as sete falhas nossas e, se a região cair, nos traz de volta em oito horas, numa segunda nuvem desligada.</p>
+  <p>À direita, a segunda nuvem sempre ligada: <b>um milhão e duzentos e vinte mil por ano</b>, mais da metade em gente.</p>
+  <p>O que isso compra? Reduzir essas oito horas para quatro, num evento a cada quatro anos. <b>Um milhão e duzentos e vinte mil reais por hora de indisponibilidade evitada</b>, numa falha que quase sempre se resolve reabrindo o prazo. Poderíamos pagar. <b>Não pagamos porque esse preço por hora não se justifica.</b></p>
+  <div class="mk"><b>MARCAÇÃO:</b> o número que tem que ficar é R$ 1,22 milhão por hora. Diga-o devagar. Se perguntarem a frequência, a resposta é que mesmo dobrando para um evento a cada dois anos, seriam R$ 610 mil por hora, e a conclusão não muda. <b>Se perguntarem por quedas de vários dias</b> (a Forrester prevê algumas em 2026): com a restauração a frio no Google Cloud voltamos em cerca de oito horas, qualquer que seja a duração, então a nuvem ligada compra sempre as mesmas quatro horas. <b>Se perguntarem por que não a ligada, se a desligada se paga:</b> a desligada compra dezenas de horas por R$ 80 mil; a ligada, quatro horas por R$ 1,22 milhão.</div>
+</div>
+</section>
+
+<!-- ══════════════════════════ 6 ══════════════════════════ -->
+<section class="page">
+<div class="thumb"><div class="slide">
+  <div class="hd"><span class="n">06</span><h1>A ressalva: o que sai da AWS</h1><span class="t">4:05 – 4:35 · 30s</span></div>
+  <div class="body tight">
+    <p class="lead">Uma nuvem para operar. Duas para sobreviver.</p>
+    <table>
+      <tr><th>O que sai do provedor primário</th><th>Por quê</th><th class="r">R$/ano</th></tr>
+      <tr><td><b>DNS e WAF</b><span class="sub">provedor neutro</span></td>
+          <td>Se a nuvem cai e o DNS está dentro dela, <b>não dá nem para apontar para uma página de status</b></td>
+          <td class="num r">60 mil</td></tr>
+      <tr><td><b>Página de status</b></td>
+          <td>Precisa <b>sobreviver à queda que está anunciando</b>. E é o canal formal para comunicar prorrogação</td>
+          <td class="num r">8 mil</td></tr>
+      <tr><td><b>Backup off-site</b><span class="sub">Google Cloud, imutável</span></td>
+          <td>Backup no provedor que você quer sobreviver <b>não é backup, é cópia</b></td>
+          <td class="num r">22 mil</td></tr>
+      <tr><td><b>Restauração a frio</b><span class="sub">Google Cloud, São Paulo</span></td>
+          <td>Se a AWS cair, <b>o sistema volta aqui em ~8 h</b>. Nada fica ligado: o custo é o ensaio trimestral</td>
+          <td class="num r">80 mil</td></tr>
+      <tr class="ok"><td colspan="2"><b>Total, 5% do EBITDA</b></td><td class="num r"><b>R$ 170 mil</b></td></tr>
+    </table>
+    <div class="box bl" style="margin-top:16px">
+      <b>Isto é multicloud?</b> Pelo critério estrito, que é usar mais de um provedor, <b>sim, na camada de sobrevivência.</b> A segunda nuvem existe, mas desligada: não opera, só nos traz de volta.
+    </div>
+  </div>
+  <div class="ft"><span><b>CERTAMIS</b> · SOLUÇÕES MULTICLOUD</span><span>FIAP · 6 / 8</span></div>
+</div></div>
+<div class="notes">
+  <p><b>Quatro coisas saem da AWS.</b> DNS e WAF, porque sem eles não dá nem para avisar que caiu, e o WAF é a defesa contra ataque. A página de status. O backup, no Google Cloud. E a restauração: se a região cair, o sistema volta lá, em São Paulo, em cerca de oito horas.</p>
+  <p>Cento e setenta mil por ano. <b>Isto é multicloud, sim: uma nuvem para operar, duas para sobreviver.</b></p>
+  <div class="mk"><b>MARCAÇÃO:</b> conceder que isto conta como multicloud é o que impede a banca de dizer "vocês fugiram da pergunta".</div>
+</div>
+</section>
+
+<!-- ══════════════════════════ 7 ══════════════════════════ -->
+<section class="page">
+<div class="thumb"><div class="slide">
+  <div class="hd"><span class="n">07</span><h1>A arquitetura alvo</h1><span class="t">4:35 – 5:25 · 50s</span></div>
+  <div class="body tight">
+    <div class="diag"><img src="{{DIAGRAMA}}" alt="Arquitetura alvo da Certamis"></div>
+  </div>
+  <div class="ft"><span><b>CERTAMIS</b> · SOLUÇÕES MULTICLOUD</span><span>FIAP · 7 / 8</span></div>
+</div></div>
+<div class="notes">
+  <p><b>O princípio: o calendário do edital é dado de entrada da infraestrutura.</b></p>
+  <p><b>Em roxo, fora da AWS:</b> Cloudflare com DNS, WAF e fila de espera, e embaixo o Google Cloud, com backup e restauração, e a página de status.</p>
+  <p><b>Em verde, a decisão mais importante:</b> gabarito, cartão e resultado viram arquivos estáticos em CDN. Se o backend inteiro cair no dia do resultado, o resultado continua no ar.</p>
+  <p><b>Em azul, as células</b>, cada uma com EKS e Aurora próprios, e uma célula dedicada para certames acima de cem mil candidatos.</p>
+  <p>O serviço de agenda provisiona seis horas antes do pico. E o modo degradado tem cinco níveis: no quarto, o sistema serve só estático, e continua servindo.</p>
+  <div class="mk"><b>MARCAÇÃO:</b> aponte, não leia. Se o tempo apertar, diga só roxo, verde, azul e vá para o fecho.</div>
+</div>
+</section>
+
+<!-- ══════════════════════════ 8 ══════════════════════════ -->
+<section class="page">
+<div class="thumb"><div class="slide">
+  <div class="hd"><span class="n">08</span><h1>Fecho</h1><span class="t">5:25 – 5:45 · 20s</span></div>
+  <div class="body">
+    <p class="lead">Dois cenários em que estaríamos errados.</p>
+    <div class="box bl" style="border-left:4px solid #0b4a49">
+      <b style="font-family:var(--mono);color:#0b4a49">2</b> &nbsp; <b>Se passarmos a aplicar prova on-line.</b> Já existe: a prova on-line da AgSUS foi anulada e reaplicada em 2026. Aí o remédio deixa de ser reabrir um prazo e passa a ser <b>reaplicar a prova inteira. O custo de cada hora de queda muda de ordem de grandeza, e a conta pode inverter.</b>
+    </div>
+    <div class="box bl" style="margin-top:11px;border-left:4px solid #0b4a49">
+      <b style="font-family:var(--mono);color:#0b4a49">3</b> &nbsp; <b>Se o ensaio de restauração no Google passar de 8 horas</b>, a conta de R$ 1,22 milhão por hora deixa de valer, e é refeita.
+    </div>
+    <div class="banner" style="margin-top:16px">
+      Multicloud não é uma virtude. É a resposta a uma falha específica.
+      <small>Por isso a nossa segunda nuvem só existe para essa falha, e fica desligada até ela chegar.</small>
+    </div>
+  </div>
+  <div class="ft"><span><b>CERTAMIS</b> · SOLUÇÕES MULTICLOUD</span><span>FIAP · 8 / 8</span></div>
+</div></div>
+<div class="notes">
+  <p><b>Dois cenários em que estaríamos errados.</b> Se passarmos a aplicar prova on-line, que já existe: o remédio vira reaplicar a prova. E se o ensaio de restauração passar de oito horas.</p>
+  <p><b>Multicloud não é virtude. É resposta a uma falha específica, e só para ela usamos a segunda nuvem.</b></p>
+  <div class="mk"><b>MARCAÇÃO:</b> assumir a condição de validade da própria decisão vale mais que defendê-la como absoluta. O gatilho 2 mostra que a análise é do problema, não da conveniência. A ressalva de que na AgSUS a causa foi da própria banca não está na fala: guarde-a para a discussão. O gatilho 5, segunda região AWS no Brasil, saiu do slide e está no documento.</div>
+</div>
+</section>
+
+</body>
+</html>

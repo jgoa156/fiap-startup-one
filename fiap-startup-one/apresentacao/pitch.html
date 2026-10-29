@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="light">
+<head>
+<meta charset="utf-8">
+<title>Certamis · pitch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Serif:wght@600;700&display=swap" rel="stylesheet">
+<style>
+@page{size:1280px 720px;margin:0}
+
+:root{
+  --ink:#16191c; --gy:#6b7280; --ln:#d9dcdf; --bg:#fffefb;
+  --teal:#0f5e5c; --tealD:#0b4a49;
+  --rd:#9c2b2b; --rdBg:#fae8e8; --rdLn:#e2b6b6;
+  --gr:#1f6b42; --grBg:#dcece2; --grLn:#a9c9b7;
+  --blBg:#dde9ef; --blLn:#a9c4cf;
+  --am:#8a5a12; --amBg:#f8ecd2; --amLn:#ddbd7d;
+  --nt:#f5f6f7; --ntLn:#e3e5e8;
+  --serif:"IBM Plex Serif",Georgia,"Times New Roman",serif;
+  --sans:"Segoe UI",system-ui,-apple-system,Arial,sans-serif;
+  --mono:"IBM Plex Mono",Consolas,"Courier New",monospace;
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#fff}
+body{font-family:var(--sans);color:var(--ink);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+
+.slide{
+  width:1280px;height:720px;background:var(--bg);
+  padding:34px 52px 0;position:relative;overflow:hidden;
+  page-break-after:always;break-after:page;
+  display:flex;flex-direction:column;
+}
+.slide:last-of-type{page-break-after:auto;break-after:auto}
+
+.hd{display:flex;align-items:baseline;gap:14px;padding-bottom:12px;border-bottom:1px solid var(--ln)}
+.hd .n{font-family:var(--mono);font-size:14px;font-weight:600;color:var(--teal);letter-spacing:.06em}
+.hd h1{font-family:var(--serif);font-weight:700;font-size:32px;line-height:1.1;margin:0;flex:1}
+
+.ft{position:absolute;left:52px;right:52px;bottom:22px;display:flex;justify-content:space-between;
+    padding-top:9px;border-top:1px solid var(--ln);
+    font-family:var(--mono);font-size:11px;letter-spacing:.09em;color:#9aa1a8}
+.ft b{color:var(--teal);font-weight:600}
+
+.body{flex:1;display:flex;flex-direction:column;justify-content:center;padding:24px 0 74px}
+.body.tight{padding:14px 0 74px}
+.body>*:first-child{margin-top:0}
+.lead{font-family:var(--serif);font-weight:700;font-size:27px;line-height:1.24;margin:0 0 14px}
+.intro{font-size:16.5px;color:#3d4348;margin:0 0 14px;line-height:1.45}
+
+/* capa */
+.cover{justify-content:center}
+.cover .kicker{font-family:var(--mono);font-size:12.5px;font-weight:600;letter-spacing:.14em;
+               text-transform:uppercase;color:var(--teal)}
+.cover .name{font-family:var(--serif);font-weight:700;font-size:82px;line-height:1;margin:14px 0 10px}
+.cover .tag{font-family:var(--serif);font-weight:700;font-size:29px;line-height:1.22;margin:0 0 18px}
+.cover .desc{font-size:16.5px;color:#3d4348;line-height:1.5;max-width:800px}
+
+table{width:100%;border-collapse:collapse;font-size:15.5px}
+th{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+   color:var(--gy);text-align:left;padding:0 10px 7px;border-bottom:1px solid var(--ln)}
+th.r,td.r{text-align:right}
+td{padding:9px 10px;border-bottom:1px solid #ebedef;vertical-align:top}
+td.num{font-family:var(--mono);font-size:14.5px;text-align:right}
+tr.hi td{background:var(--grBg)}
+tr.last td{border-bottom:0}
+
+.box{border:1px solid var(--ntLn);background:var(--nt);border-radius:5px;padding:14px 17px;font-size:15.5px;line-height:1.45}
+.box.bl{border-color:var(--blLn);background:var(--blBg)}
+.box.gr{border-color:var(--grLn);background:var(--grBg)}
+.box.rd{border-color:var(--rdLn);background:var(--rdBg)}
+.box.am{border-color:var(--amLn);background:var(--amBg)}
+.box .lbl{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+          color:var(--gy);display:block;margin-bottom:6px}
+.banner{border:2px solid var(--tealD);background:var(--blBg);border-radius:5px;padding:16px;text-align:center;
+        font-family:var(--serif);font-weight:700;font-size:23px;color:var(--tealD);line-height:1.3}
+.banner.gr{border-color:var(--gr);background:var(--grBg);color:var(--gr)}
+.banner small{display:block;font-family:var(--sans);font-weight:400;font-size:16px;margin-top:7px;line-height:1.4}
+
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g5{grid-template-columns:repeat(5,1fr);gap:10px}
+
+.stats{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--ntLn);border-radius:5px;overflow:hidden}
+.stats div{padding:16px 8px;text-align:center;border-right:1px solid var(--ntLn)}
+.stats div:last-child{border-right:0}
+.stats b{display:block;font-family:var(--serif);font-weight:700;font-size:35px;color:var(--teal);line-height:1.05}
+.stats span{display:block;font-size:13px;color:var(--gy);margin-top:5px;line-height:1.35}
+
+.card{border:1px solid var(--ntLn);background:var(--nt);border-radius:5px;padding:15px 17px}
+.card.gr{border-color:var(--grLn);background:var(--grBg)}
+.card .lbl{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+           color:var(--gy);display:block;margin-bottom:7px}
+.card .big{font-family:var(--serif);font-weight:700;font-size:34px;color:var(--teal);line-height:1.05}
+.card .sm{font-size:14px;color:#3d4348;margin-top:7px;line-height:1.4}
+
+.pk{border:1px solid var(--ntLn);background:var(--nt);border-radius:5px;padding:12px 8px;text-align:center}
+.pk.hot{border-color:var(--rdLn);background:var(--rdBg)}
+.pk .l{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.1em;color:var(--gy)}
+.pk .t{font-weight:700;font-size:15px;margin-top:5px}
+.pk .d{font-size:12.5px;color:var(--gy);margin-top:3px;line-height:1.3}
+.pk.hot .d{color:var(--rd);font-weight:600}
+
+.mods{font-size:15px}
+.mods td{padding:8.5px 10px}
+</style>
+</head>
+<body>
+
+<!-- ══════════════ 1 · capa ══════════════ -->
+<div class="slide">
+  <div class="body cover">
+    <div class="kicker">Plataforma de processos seletivos públicos</div>
+    <div class="name">Certamis</div>
+    <div class="tag">O sistema de inscrição que não<br>cai no último dia do prazo.</div>
+    <p class="desc">Do edital à homologação do resultado. Vendido para as bancas organizadoras que
+    conduzem concursos, vestibulares e processos seletivos no Brasil.</p>
+    <div class="stats" style="margin-top:26px">
+      <div><b>R$ 17 mi</b><span>ARR projetado<br>no ano 5</span></div>
+      <div><b>2028</b><span>as regras do concurso mudam<br>para quase todo o setor público</span></div>
+      <div><b>R$ 8 mi</b><span>rodada Seed<br>que estamos levantando</span></div>
+    </div>
+  </div>
+  <div class="ft"><span><b>CERTAMIS</b> · PITCH</span><span>1 / 10</span></div>
+</div>
+
+<!-- ══════════════ 2 · problema ══════════════ -->
+<div class="slide">
+  <div class="hd"><span class="n">01</span><h1>O problema é uma manchete anual</h1></div>
+  <div class="body">
+    <p class="lead">“Site do concurso fora do ar no último dia de inscrição.”</p>
+    <p class="intro">Todo ano, em algum certame. Só em 2026: a <b>FGV</b> ficou dias fora do ar após um
+    ataque, a prova on-line da <b>AgSUS</b> foi anulada e reaplicada, e a <b>Alece</b> virou alvo de ação
+    civil pública do Ministério Público por instabilidade no site da banca.</p>
+    <div class="grid g2" style="margin-top:18px">
+      <div class="box rd">
+        <span class="lbl">Quem paga a conta</span>
+        <b>O candidato</b>, que estudou um ano e não consegue se inscrever.<br>
+        <b>A banca</b>, que perde reputação e pode perder o contrato.<br>
+        <b>O órgão</b>, que vira notícia e responde na Justiça.
+      </div>
+      <div class="box">
+        <span class="lbl">Por que acontece</span>
+        Porque a carga de um certame <b>cabe em poucas horas</b>, e quase ninguém ensaia o sistema
+        para elas nem o protege contra ataque. <b>Nos três casos de 2026, a falha foi do sistema da
+        banca, não da nuvem.</b>
+      </div>
+    </div>
+  </div>
+  <div class="ft"><span><b>CERTAMIS</b> · PITCH</span><span>2 / 10</span></div>
+</div>
+
+<!-- ══════════════ 3 · cinco picos ══════════════ -->
+<div class="slide">
+  <div class="hd"><span class="n">02</span><h1>Um certame tem cinco picos, não um</h1></div>
+  <div class="body">
+    <div class="grid g5">
+      <div class="pk"><div class="l">PICO 1</div><div class="t">Isenção</div><div class="d">quem pede isenção</div></div>
+      <div class="pk hot"><div class="l">PICO 2</div><div class="t">Inscrição</div><div class="d">escrita pesada · o que derruba</div></div>
+      <div class="pk"><div class="l">PICO 3</div><div class="t">Cartão de confirmação</div><div class="d">a base inteira · leitura</div></div>
+      <div class="pk"><div class="l">PICO 4</div><div class="t">Gabarito e recurso</div><div class="d">a base inteira · leitura e recurso</div></div>
+      <div class="pk"><div class="l">PICO 5</div><div class="t">Resultado</div><div class="d">a base inteira · leitura</div></div>
+    </div>
+    <div class="box am" style="margin-top:16px">
+      <b>O que quase todo fornecedor dimensiona errado:</b> os picos 3, 4 e 5 são maiores em
+      requisições, mas são <b>leitura de dado que não muda</b>, e saem do CDN. <b>Quem derruba o
+      banco é o pico 2, o da inscrição, porque é escrita.</b>
+    </div>
+    <div class="banner" style="margin-top:16px;font-size:21px">
+      16,7 mil inscrições por hora num certame de 300 mil candidatos.
+      <small>São 40× a média daquele certame, e a data está publicada em edital com meses de antecedência.</small>
+    </div>
+  </div>
+  <div class="ft"><span><b>CERTAMIS</b> · PITCH</span><span>3 / 10</span></div>
+</div>
+
+<!-- ══════════════ 4 · por que agora ══════════════ -->
+<div class="slide">
+  <div class="hd"><span class="n">03</span><h1>Por que agora: as regras mudam em 2028</h1></div>
+  <div class="body">
+    <div class="box bl">
+      <span class="lbl">Lei nº 14.965, de 9 de setembro de 2024 · normas gerais de concursos públicos</span>
+      Vale para os concursos <b>de todos os entes</b> a partir de <b>1º de janeiro de 2028</b>; estados
+      e municípios podem, em alternativa, editar normas próprias · fixa o conteúdo mínimo do edital,
+      inclusive forma e prazo de recurso · <b>autoriza prova total ou parcialmente a distância</b>.
+    </div>
+    <div class="grid g2" style="margin-top:16px">
+      <div class="box gr">
+        <span class="lbl">O que isso significa</span>
+        A lei <b>não obriga ninguém a trocar de sistema</b>, mas muda o que o sistema precisa fazer.
+        Sistemas feitos para as regras antigas terão de se adequar, e <b>a prova on-line já começou</b>:
+        a da AgSUS foi aplicada em 2026.
+      </div>
+      <div class="box">
+        <span class="lbl">A janela</span>
+        Uma mudança de regras com data marcada, num mercado onde ninguém troca de fornecedor sem
+        motivo. <b>Quem for se adequar vai escolher fornecedor, e é o melhor momento para entrar.</b>
+      </div>
+    </div>
+  </div>
+  <div class="ft"><span><b>CERTAMIS</b> · PITCH</span><span>4 / 10</span></div>
+</div>
+
+<!-- ══════════════ 5 · produto ══════════════ -->
+<div class="slide">
+  <div class="hd"><span class="n">04</span><h1>O produto: o certame inteiro, não o formulário</h1></div>
+  <div class="body tight">
+    <div class="grid g2">
+      <table class="mods">
+        <tr><td><b>1 · Configuração</b>: edital estruturado, cotas, cronograma, retificação versionada</td></tr>
+        <tr><td><b>2 · Publicação</b>: a partir daqui tudo é público e auditável</td></tr>
+        <tr><td><b>3 · Isenção</b>: triagem por regra transforma uma semana de análise em um dia</td></tr>
+        <tr class="last"><td><b>4 · Inscrição</b>: conta única do candidato, reaproveitada entre bancas</td></tr>
+      </table>
+      <table class="mods">
+        <tr><td><b>5 · Homologação</b>: análise de laudo, recurso de indeferimento</td></tr>
+        <tr><td><b>6 · Ensalamento</b>: candidato → cidade → local → sala</td></tr>
+        <tr><td><b>7 · Gabarito e recurso</b>: agrupamento por fundamento, <b>16 textos em vez de 500</b></td></tr>
+        <tr class="last"><td><b>8 · Resultado</b>: recálculo versionado após anulação de questão</td></tr>
+      </table>
+    </div>
+    <div class="grid g2" style="margin-top:16px">
+      <div class="box gr">
+        <span class="lbl">O que nos diferencia</span>
+        <b>Ensaio de carga contratualizado</b>, com relatório assinado antes de cada certame grande.
+        <b>Nenhum concorrente anuncia isso</b>, e está dentro do orçamento, não é opcional.
+      </div>
+      <div class="box bl">
+        <span class="lbl">O fosso</span>
+        <b>Conta única do candidato</b>, viva entre bancas. Quanto mais bancas usam, mais valiosa a
+        conta, e mais atraente para a próxima banca.
+      </div>
+    </div>
+  </div>
+  <div class="ft"><span><b>CERTAMIS</b> · PITCH</span><span>5 / 10</span></div>
+</div>
+
+<!-- ══════════════ 6 · receita ══════════════ -->
+<div class="slide">
+  <div class="hd"><span class="n">05</span><h1>Como ganhamos dinheiro</h1></div>
+  <div class="body tight">
+    <div class="grid g2">
+      <div class="card">
+        <span class="lbl">Assinatura anual</span>
+        <div class="big">R$ 48 a 84 mil</div>
+        <div class="sm">Cobre a operação de base. Previsível.</div>
+      </div>
+      <div class="card gr">
+        <span class="lbl">Valor por inscrição processada · é o negócio</span>
+        <div class="big" style="color:#1f6b42">R$ 3,00</div>
+        <div class="sm">Cerca de 3,75% de uma taxa média de R$ 80 paga pelo candidato.</div>
+      </div>
+    </div>
+    <table style="margin-top:16px">
+      <tr class="hi"><td style="width:270px"><b>Alinha com o cliente sem negociação</b></td>
+          <td>A banca também cobra por candidato. No modelo "custo zero", ela assume os custos e fica com a arrecadação das taxas</td></tr>
+      <tr><td><b>Receita e custo pulsam juntos</b></td>
+          <td>Ganhamos exatamente nos dias em que a infraestrutura custa mais</td></tr>
+      <tr class="last"><td><b>Não processamos o pagamento</b></td>
+          <td>Taxa de inscrição é receita pública. Orquestramos a cobrança no provedor da banca, e removemos uma camada inteira de exigência regulatória</td></tr>
+    </table>
+    <div class="banner" style="margin-top:16px;font-size:20px">
+      ACV de R$ 245 mil no ano 3 · retorno de CAC em 10 meses · LTV/CAC 4,5×
+      <small>CAC calculado como a linha inteira de vendas e marketing dividida pelas adições brutas, não só o custo do vendedor.</small>
+    </div>
+  </div>
+  <div class="ft"><span><b>CERTAMIS</b> · PITCH</span><span>6 / 10</span></div>
+</div>
+
+<!-- ══════════════ 7 · mercado ══════════════ -->
+<div class="slide">
+  <div class="hd"><span class="n">06</span><h1>O mercado, e o que ele não é</h1></div>
+  <div class="body tight">
+    <div class="grid g3">
+      <div class="card"><span class="lbl">TAM</span><div class="big">R$ 90 mi</div>
+        <div class="sm">~30 mi de inscrições pagas por ano × R$ 3</div></div>
+      <div class="card"><span class="lbl">SAM</span><div class="big">R$ 36 mi</div>
+        <div class="sm">Bancas médias e pequenas, o nosso alvo</div></div>
+      <div class="card gr"><span class="lbl">SOM · ano 5</span><div class="big" style="color:#1f6b42">R$ 17 mi</div>
+        <div class="sm">45 bancas · 4,8 mi de inscrições</div></div>
+    </div>
+    <div class="box" style="margin-top:14px">
+      <span class="lbl">A premissa de participação, dita antes que perguntem</span>
+      O plano assume <b>cerca de 150 bancas</b> no segmento, e <b>45 clientes seriam 30% dele</b>.
+      Se forem 200, somos 22%. <b>Se forem 80, seríamos 56%, o que não é plausível com seis
+      concorrentes estabelecidos</b>, e o plano pararia em 25 bancas. Contar o segmento é a segunda
+      verificação mais urgente.
+    </div>
+    <div class="box am" style="margin-top:12px">
+      <span class="lbl">A parte que não escondemos</span>
+      <b>O TAM desta categoria é modesto.</b> A empresa cresce por <b>adjacência, não por
+      participação</b>: certificação profissional, conselho de classe e seleção corporativa usam o
+      mesmo motor. <b>Está no plano do ano 3, não do ano 5.</b>
+    </div>
+  </div>
+  <div class="ft"><span><b>CERTAMIS</b> · PITCH</span><span>7 / 10</span></div>
+</div>
+
+<!-- ══════════════ 8 · concorrência ══════════════ -->
+<div class="slide">
+  <div class="hd"><span class="n">07</span><h1>A concorrência existe, e o argumento não é “ninguém faz”</h1></div>
+  <div class="body tight">
+    <table>
+      <tr><th style="width:290px">Quem já está no mercado</th><th>O que faz</th></tr>
+      <tr><td><b>Gestor Editais</b> (Grupo ACT)</td>
+          <td>Gestão de concursos. <b>Já cobra sobre o total de inscrições</b>, o que valida o nosso modelo de preço</td></tr>
+      <tr><td><b>ProSeleta</b></td><td>Gestão de todas as fases, da inscrição ao resultado</td></tr>
+      <tr><td><b>Fábrica de Provas</b></td><td>Avaliação, inscrição, aplicação e correção</td></tr>
+      <tr class="last"><td><b>ADSR</b> · <b>MH Informática</b> · <b>Instituto Avalia</b></td>
+          <td>ERP de concursos, correção de cartão-resposta, prova online</td></tr>
+    </table>
+    <div class="banner gr" style="margin-top:16px">
+      Todos fazem a inscrição. Quase ninguém sobrevive ao dia do pico e ao recurso em massa.
+    </div>
+    <p class="intro" style="margin-top:14px">É por isso que o programa de arquitetura <b>é o produto</b>,
+    não o custo: capacidade comprovada por ensaio contratual, isolamento por certame, recálculo
+    versionado e trilha que sobrevive a uma ação judicial três anos depois.</p>
+  </div>
+  <div class="ft"><span><b>CERTAMIS</b> · PITCH</span><span>8 / 10</span></div>
+</div>
+
+<!-- ══════════════ 9 · projeções ══════════════ -->
+<div class="slide">
+  <div class="hd"><span class="n">08</span><h1>Projeções</h1></div>
+  <div class="body tight">
+    <table>
+      <tr><th>R$ milhões</th><th class="r">Ano 1</th><th class="r">Ano 2</th><th class="r">Ano 3</th><th class="r">Ano 4</th><th class="r">Ano 5</th></tr>
+      <tr><td>Bancas clientes</td><td class="num">3</td><td class="num">9</td><td class="num">18</td><td class="num">31</td><td class="num"><b>45</b></td></tr>
+      <tr><td>Inscrições processadas (milhões)</td><td class="num">0,10</td><td class="num">0,41</td><td class="num">1,11</td><td class="num">2,64</td><td class="num"><b>4,80</b></td></tr>
+      <tr class="hi"><td><b>Receita (ARR)</b></td><td class="num"><b>0,5</b></td><td class="num"><b>1,8</b></td><td class="num"><b>4,4</b></td><td class="num"><b>9,8</b></td><td class="num"><b>17,1</b></td></tr>
+      <tr><td>Margem bruta</td><td class="num">60%</td><td class="num">72%</td><td class="num">77%</td><td class="num">82%</td><td class="num">82%</td></tr>
+      <tr><td><b>EBITDA</b></td><td class="num">−2,4</td><td class="num">−3,0</td><td class="num">−2,9</td><td class="num">−0,5</td><td class="num"><b>+3,4</b></td></tr>
+      <tr class="last"><td>Headcount</td><td class="num">9</td><td class="num">17</td><td class="num">26</td><td class="num">35</td><td class="num">44</td></tr>
+    </table>
+    <div class="grid g2" style="margin-top:16px">
+      <div class="box gr"><span class="lbl">Breakeven</span>4º trimestre do <b>ano 4</b>, com
+        <b>R$ 8,8 mi</b> de queima acumulada</div>
+      <div class="box am"><span class="lbl">A variável que decide o plano</span>
+        O preço por inscrição. <b>Abaixo de R$ 2,29 o modelo não fecha</b> com esta estrutura de custo,
+        e é a primeira validação da Seed.</div>
+    </div>
+  </div>
+  <div class="ft"><span><b>CERTAMIS</b> · PITCH</span><span>9 / 10</span></div>
+</div>
+
+<!-- ══════════════ 10 · pedido ══════════════ -->
+<div class="slide">
+  <div class="hd"><span class="n">09</span><h1>O pedido</h1></div>
+  <div class="body">
+    <div class="banner" style="font-size:31px;padding:22px">
+      Seed de R$ 8 milhões
+      <small style="font-size:18px">24 meses de pista, até <b>9 bancas</b> e métricas de Série A</small>
+    </div>
+    <div class="grid g3" style="margin-top:16px">
+      <div class="box"><span class="lbl">55% · Engenharia</span>
+        Ciclo completo do certame e o programa de capacidade que é o diferencial</div>
+      <div class="box"><span class="lbl">25% · Go-to-market</span>
+        Venda direta a bancas médias. <b>Sem licitação</b>, porque a banca contrata como empresa privada</div>
+      <div class="box"><span class="lbl">20% · Conformidade</span>
+        LGPD, trilha de auditoria e certificações que a diligência da banca exige</div>
+    </div>
+    <div class="box bl" style="margin-top:16px;text-align:center;font-size:17px">
+      <b>A tese em uma frase:</b> até 2028 as regras do concurso mudam para quase todo o setor público, e a prova on-line já começou a ser aplicada;
+      quem trocar de sistema vai escolher pelo que quase ninguém resolve: <b>aguentar o último dia.</b>
+    </div>
+  </div>
+  <div class="ft"><span><b>CERTAMIS</b> · PITCH</span><span>10 / 10</span></div>
+</div>
+
+</body>
+</html>
