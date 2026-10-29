@@ -3,11 +3,11 @@
 O entregável da POC é o relatório deste ensaio. Este roteiro diz como produzi-lo de forma
 que outra pessoa consiga repetir e chegar perto do mesmo número.
 
-## 0. Antes de tudo: duas decisões
+## 0. As premissas do perfil
 
 | Decisão | Padrão no gerador | Status |
 |---|---|---|
-| **Fator de rajada** (quantas vezes a média, por 90 s a cada 10 min) | 3× | ⚠️ **a confirmar.** Vai para o relatório e para o pitch. Rodar com `-e FATOR_CONFIRMADO=1` só depois de confirmado |
+| **Fator de rajada** (quantas vezes a média, por 90 s a cada 10 min) | 3× | ✅ **confirmado em 29/10/2026.** Cerca de 10,6 inscrições por segundo nas rajadas, a 16,7 mil/h. Outro fator é outro ensaio, e o resumo do k6 registra isso |
 | Probabilidades de comportamento (abandono 8%, recarga 15%, clique duplo 10%...) | ver topo de `ultimo-dia.js` | estimativa nossa, declarada no relatório |
 
 ## 1. Pré-requisitos

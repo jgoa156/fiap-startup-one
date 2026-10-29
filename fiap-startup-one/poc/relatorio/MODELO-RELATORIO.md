@@ -33,7 +33,7 @@ quebrou.
 | Aplicação | ⟨N⟩ processos uvicorn, pool de ⟨N⟩ conexões cada |
 | Banco | Postgres 16 em contêiner, ⟨limites, se houver⟩ |
 | Dado | 100% sintético. ⟨N⟩ contas semeadas |
-| Perfil | ⟨patamar⟩ por hora em média; rajadas de 90 s a **⟨F⟩×** a cada 10 min. Fator **⟨confirmado / a confirmar⟩** |
+| Perfil | ⟨patamar⟩ por hora em média; rajadas de 90 s a **⟨F⟩×** a cada 10 min. Fator 3× confirmado em 29/10/2026 (`perfil.fator_rajada_confirmado`) |
 | Planejado pelo perfil | ⟨N⟩ inscrições em ⟨h⟩ h (`perfil.planejado` no JSON do k6) |
 | Comportamento simulado | abandono ⟨8%⟩, recarga ⟨15%⟩, clique duplo na cobrança ⟨10%⟩, outra aba ⟨3%⟩, reenvio do aviso de pagamento ⟨5%⟩. **Estimativas nossas** |
 

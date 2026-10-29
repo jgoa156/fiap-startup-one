@@ -12,8 +12,9 @@
 //      recarregamento e abandono. O relatório dá as duas unidades.
 //   3. Repetição e reenvio deliberados, para testar a idempotência sob carga.
 //
-// ⚠️ FATOR_RAJADA = 3 é PADRÃO A CONFIRMAR com o dono do projeto. Vai para o
-// relatório e para o pitch; não fixar sem confirmação.
+// FATOR_RAJADA = 3 confirmado pelo dono do projeto em 29/10/2026: nas rajadas de
+// 90 s chegam 3× a média, cerca de 10,6 inscrições por segundo a 16,7 mil/h.
+// Usar outro fator é outro ensaio, e o resumo registra que não é o confirmado.
 
 import http from "k6/http";
 import { check, sleep } from "k6";
@@ -24,7 +25,8 @@ const BASE = __ENV.BASE_URL || "http://localhost:8000";
 const MODO = __ENV.MODO || "patamar";
 const PATAMAR = Number(__ENV.PATAMAR || 16700);          // inscrições por hora
 const DURACAO_MIN = Number(__ENV.DURACAO_MIN || 180);
-const FATOR_RAJADA = Number(__ENV.FATOR_RAJADA || 3);    // ⚠️ a confirmar
+const FATOR_RAJADA = Number(__ENV.FATOR_RAJADA || 3);    // confirmado em 29/10/2026
+const FATOR_CONFIRMADO = 3;
 const RAJADA_S = Number(__ENV.RAJADA_S || 90);
 const CICLO_S = Number(__ENV.CICLO_S || 600);
 const CERTAME = Number(__ENV.CERTAME || 1);
@@ -261,7 +263,7 @@ export function handleSummary(dados) {
   const quando = new Date().toISOString().replace(/[:.]/g, "-");
   const resumo = {
     modo: MODO, patamar_por_hora: PATAMAR, duracao_min: DURACAO_MIN,
-    fator_rajada: FATOR_RAJADA, fator_rajada_confirmado: __ENV.FATOR_CONFIRMADO === "1",
+    fator_rajada: FATOR_RAJADA, fator_rajada_confirmado: FATOR_RAJADA === FATOR_CONFIRMADO,
     rajada_s: RAJADA_S, ciclo_s: CICLO_S,
     chegada_base_por_s: perfil.basePorS, chegada_pico_por_s: perfil.picoPorS,
     probabilidades: P, inicio: __ENV.INICIO || null, planejado: planejadas(perfil),

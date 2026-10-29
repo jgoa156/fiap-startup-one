@@ -16,10 +16,10 @@ não a tela.
 **O que falta para a POC estar entregue**, em ordem:
 
 1. Rodar a suíte inteira no Windows (inclui `test_api.py`, que ainda não executou em lugar nenhum).
-2. **Confirmar o fator de rajada** (padrão 3×). Vai para o relatório e para o pitch.
-3. Rodar os ensaios do roteiro, subir até quebrar, corrigir o gargalo, repetir.
-4. Preencher [`relatorio/MODELO-RELATORIO.md`](relatorio/MODELO-RELATORIO.md) a partir dos arquivos brutos.
-5. Levar o resultado para o pitch.
+2. Rodar os ensaios do roteiro, subir até quebrar, corrigir o gargalo, repetir. Fator de rajada:
+   **3×, confirmado em 29/10/2026**.
+3. Preencher [`relatorio/MODELO-RELATORIO.md`](relatorio/MODELO-RELATORIO.md) a partir dos arquivos brutos.
+4. Levar o resultado para o pitch.
 
 ## Decisões desta implementação
 
