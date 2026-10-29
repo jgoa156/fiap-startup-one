@@ -8,7 +8,7 @@ SQL = Path(__file__).parent / "sql" / "regras_do_banco.sql"
 
 
 def test_regras_do_banco(banco_vazio):
-    # Cada uma das 17 verificações do arquivo aborta o script se falhar.
+    # Cada uma das 18 verificações do arquivo aborta o script se falhar.
     banco_vazio.script(SQL.read_text(encoding="utf-8"))
 
 

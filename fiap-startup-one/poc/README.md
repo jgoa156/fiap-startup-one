@@ -63,8 +63,8 @@ A documentação interativa fica em <http://localhost:8000/docs>.
 
 ## Semana 1: o que existe
 
-**Máquina de estados** de [`02-produto` §5](../02-produto-features-e-fluxos.md), com 10 estados e
-11 transições. A regra existe em dois lugares, de propósito:
+**Máquina de estados** de [`02-produto` §5](../02-produto-features-e-fluxos.md), com 11 estados e
+14 transições (11 do diagrama, 3 decididas em 29/10/2026). A regra existe em dois lugares, de propósito:
 
 - em [`app/inscricao/estados.py`](app/inscricao/estados.py), para a API responder rápido e com
   mensagem clara;
@@ -92,7 +92,7 @@ mesma transição não aplicam duas vezes; a segunda recebe 409.
 | Teste | Onde rodou |
 |---|---|
 | `test_estados.py`: transições iguais ao diagrama, estados finais sem saída, todo estado alcançável | ✅ ambiente de desenvolvimento, Python 3.13 |
-| `test_banco.py`: 17 verificações das regras do banco, mais a igualdade das tabelas | ✅ Postgres 16. Conferido também que o teste **acusa** um defeito plantado |
+| `test_banco.py`: 18 verificações das regras do banco, mais a igualdade das tabelas | ✅ Postgres 16. Conferido também que o teste **acusa** um defeito plantado |
 | `test_semear.py`: CPF sintético com dígitos válidos | ✅ |
 | `test_api.py`: API, trilha pela API, 409 e **50 transições concorrentes com uma única vencedora** | ⚠️ **ainda não rodou**: o ambiente de desenvolvimento não tinha acesso ao PyPI. Roda no Windows com o comando acima |
 
@@ -103,7 +103,7 @@ O bloco 1 implementou o diagrama sem inventar transição. Três coisas que ele 
 | # | Ponto | Decisão |
 |---|---|---|
 | 1 | Cancelar depois de finalizar | ✅ **Sim, enquanto não pagou** (29/10/2026). `AGUARDANDO_PAGAMENTO -> CANCELADA`, migração 0003 |
-| 2 | Recurso negado: INDEFERIDA não é estado final | ⏳ **Em aberto.** Recomendação: estado final INDEFERIDA_DEFINITIVA, para a decisão ficar na trilha e o banco recusar homologar quem já foi negado |
+| 2 | Recurso negado: INDEFERIDA não era estado final | ✅ **Estado final novo, INDEFERIDA_DEFINITIVA** (29/10/2026), migração 0004. Negar o recurso fica na trilha com ator e motivo, e o banco recusa homologar quem já foi negado |
 | 3 | Voltar a editar depois de finalizar | ✅ **Sim, antes de pagar** (29/10/2026). `AGUARDANDO_PAGAMENTO -> RASCUNHO`, migração 0003. A cobrança pendente é invalidada quando o pagamento existir (bloco 2) |
 
 Depois de PAGA, nem cancelar nem voltar ao rascunho: o dinheiro já entrou, e a saída é outro

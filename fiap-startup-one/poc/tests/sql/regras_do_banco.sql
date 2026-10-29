@@ -182,4 +182,26 @@ SELECT pg_temp.ctx('candidato:00000000434', 'quer desistir');
 SELECT pg_temp.espera_erro($q$UPDATE inscricao SET estado = 'CANCELADA' WHERE candidato_id = 4$q$, 'CT001');
 SELECT pg_temp.espera_erro($q$UPDATE inscricao SET estado = 'RASCUNHO' WHERE candidato_id = 4$q$, 'CT001');
 
+-- 18. Decisão 2 (29/10/2026): recurso negado é estado final e não volta a ser homologável.
+INSERT INTO candidato (cpf, nome, email) VALUES ('00000000515', 'Candidato Cinco', 'cinco@exemplo.invalid');
+SELECT pg_temp.ctx('candidato:00000000515', 'inscrição iniciada');
+INSERT INTO inscricao (certame_id, candidato_id) VALUES (1, 5);
+SELECT pg_temp.ctx('candidato:00000000515', 'isenção deferida');
+UPDATE inscricao SET estado = 'ISENCAO_ATIVA' WHERE candidato_id = 5;
+SELECT pg_temp.ctx('sistema', 'fim do prazo');
+UPDATE inscricao SET estado = 'EM_ANALISE' WHERE candidato_id = 5;
+SELECT pg_temp.ctx('banca:analista7', 'laudo sem CID');
+UPDATE inscricao SET estado = 'INDEFERIDA' WHERE candidato_id = 5;
+-- Não pula direto para o definitivo sem passar por INDEFERIDA.
+SELECT pg_temp.espera_erro($q$UPDATE inscricao SET estado = 'INDEFERIDA_DEFINITIVA' WHERE candidato_id = 1$q$, 'CT001');
+SELECT pg_temp.ctx('banca:comissao', 'recurso negado: laudo continua sem CID');
+UPDATE inscricao SET estado = 'INDEFERIDA_DEFINITIVA' WHERE candidato_id = 5;
+SELECT pg_temp.ctx('script:correcao', 'tentativa de homologar depois de negado');
+SELECT pg_temp.espera_erro($q$UPDATE inscricao SET estado = 'HOMOLOGADA' WHERE candidato_id = 5$q$, 'CT001');
+DO $$ BEGIN
+    ASSERT (SELECT ator || ' / ' || motivo FROM inscricao_transicao t JOIN inscricao i ON i.id = t.inscricao_id
+             WHERE i.candidato_id = 5 AND t.para = 'INDEFERIDA_DEFINITIVA')
+           = 'banca:comissao / recurso negado: laudo continua sem CID';
+END $$;
+
 SELECT 'TODAS AS REGRAS DO BANCO PASSARAM' AS resultado;

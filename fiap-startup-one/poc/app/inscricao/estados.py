@@ -1,8 +1,8 @@
 """Máquina de estados da inscrição (02-produto-features-e-fluxos.md §5, mais as
-decisões de 29/10/2026 registradas na migração 0003).
+decisões de 29/10/2026 registradas nas migrações 0003 e 0004).
 
 Esta é a cópia da regra que a aplicação usa para responder rápido e com
-mensagem clara. A cópia que vale é a do banco (migrações 0002 e 0003), que recusa a
+mensagem clara. A cópia que vale é a do banco (migrações 0002 a 0004), que recusa a
 transição mesmo que alguém pule esta camada. Um teste garante que as duas são
 iguais.
 """
@@ -20,10 +20,13 @@ class Estado(StrEnum):
     EM_ANALISE = "EM_ANALISE"
     DEFERIDA = "DEFERIDA"
     INDEFERIDA = "INDEFERIDA"
+    INDEFERIDA_DEFINITIVA = "INDEFERIDA_DEFINITIVA"
     HOMOLOGADA = "HOMOLOGADA"
 
 
-FINAIS = frozenset({Estado.EXPIRADA, Estado.CANCELADA, Estado.HOMOLOGADA})
+FINAIS = frozenset({
+    Estado.EXPIRADA, Estado.CANCELADA, Estado.HOMOLOGADA, Estado.INDEFERIDA_DEFINITIVA,
+})
 
 # (de, para) -> evento
 TRANSICOES: dict[tuple[Estado, Estado], str] = {
@@ -41,6 +44,8 @@ TRANSICOES: dict[tuple[Estado, Estado], str] = {
     (Estado.EM_ANALISE, Estado.INDEFERIDA): "indefere",
     (Estado.DEFERIDA, Estado.HOMOLOGADA): "homologa",
     (Estado.INDEFERIDA, Estado.HOMOLOGADA): "provê_recurso",
+    # Decisão de 29/10/2026, migração 0004.
+    (Estado.INDEFERIDA, Estado.INDEFERIDA_DEFINITIVA): "nega_recurso",
 }
 
 
