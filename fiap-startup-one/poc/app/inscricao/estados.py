@@ -1,7 +1,8 @@
-"""Máquina de estados da inscrição (02-produto-features-e-fluxos.md §5).
+"""Máquina de estados da inscrição (02-produto-features-e-fluxos.md §5, mais as
+decisões de 29/10/2026 registradas na migração 0003).
 
 Esta é a cópia da regra que a aplicação usa para responder rápido e com
-mensagem clara. A cópia que vale é a do banco (migração 0002), que recusa a
+mensagem clara. A cópia que vale é a do banco (migrações 0002 e 0003), que recusa a
 transição mesmo que alguém pule esta camada. Um teste garante que as duas são
 iguais.
 """
@@ -31,6 +32,9 @@ TRANSICOES: dict[tuple[Estado, Estado], str] = {
     (Estado.RASCUNHO, Estado.CANCELADA): "cancela",
     (Estado.AGUARDANDO_PAGAMENTO, Estado.PAGA): "confirma_pagamento",
     (Estado.AGUARDANDO_PAGAMENTO, Estado.EXPIRADA): "vence_prazo",
+    # Decisões de 29/10/2026, migração 0003.
+    (Estado.AGUARDANDO_PAGAMENTO, Estado.CANCELADA): "cancela",
+    (Estado.AGUARDANDO_PAGAMENTO, Estado.RASCUNHO): "reabre_para_edicao",
     (Estado.ISENCAO_ATIVA, Estado.EM_ANALISE): "envia_para_analise",
     (Estado.PAGA, Estado.EM_ANALISE): "envia_para_analise",
     (Estado.EM_ANALISE, Estado.DEFERIDA): "defere",

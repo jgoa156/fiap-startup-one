@@ -14,6 +14,8 @@ def test_transicoes_sao_exatamente_as_do_diagrama():
         (E.AGUARDANDO_PAGAMENTO, E.EXPIRADA), (E.ISENCAO_ATIVA, E.EM_ANALISE),
         (E.PAGA, E.EM_ANALISE), (E.EM_ANALISE, E.DEFERIDA), (E.EM_ANALISE, E.INDEFERIDA),
         (E.DEFERIDA, E.HOMOLOGADA), (E.INDEFERIDA, E.HOMOLOGADA),
+        # decisões de 29/10/2026
+        (E.AGUARDANDO_PAGAMENTO, E.CANCELADA), (E.AGUARDANDO_PAGAMENTO, E.RASCUNHO),
     }
     assert set(TRANSICOES) == esperado
 
@@ -41,7 +43,7 @@ def test_todo_estado_nao_final_tem_saida():
 @pytest.mark.parametrize("de,para", [
     (E.RASCUNHO, E.PAGA), (E.RASCUNHO, E.HOMOLOGADA), (E.PAGA, E.RASCUNHO),
     (E.HOMOLOGADA, E.EM_ANALISE), (E.EXPIRADA, E.PAGA), (E.CANCELADA, E.RASCUNHO),
-    (E.AGUARDANDO_PAGAMENTO, E.CANCELADA),
+    (E.PAGA, E.CANCELADA), (E.PAGA, E.AGUARDANDO_PAGAMENTO), (E.EM_ANALISE, E.RASCUNHO),
 ])
 def test_transicao_invalida_e_recusada(de, para):
     with pytest.raises(TransicaoInvalida):

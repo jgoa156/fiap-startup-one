@@ -92,21 +92,22 @@ mesma transição não aplicam duas vezes; a segunda recebe 409.
 | Teste | Onde rodou |
 |---|---|
 | `test_estados.py`: transições iguais ao diagrama, estados finais sem saída, todo estado alcançável | ✅ ambiente de desenvolvimento, Python 3.13 |
-| `test_banco.py`: 15 verificações das regras do banco, mais a igualdade das tabelas | ✅ Postgres 16. Conferido também que o teste **acusa** um defeito plantado |
+| `test_banco.py`: 17 verificações das regras do banco, mais a igualdade das tabelas | ✅ Postgres 16. Conferido também que o teste **acusa** um defeito plantado |
 | `test_semear.py`: CPF sintético com dígitos válidos | ✅ |
 | `test_api.py`: API, trilha pela API, 409 e **50 transições concorrentes com uma única vencedora** | ⚠️ **ainda não rodou**: o ambiente de desenvolvimento não tinha acesso ao PyPI. Roda no Windows com o comando acima |
 
-### Pontos que o diagrama deixa em aberto
+### Pontos que o diagrama deixava em aberto
 
-Implementado **exatamente** como o diagrama, sem inventar transição. Três coisas que ele não
-prevê e que vão aparecer no bloco 2:
+O bloco 1 implementou o diagrama sem inventar transição. Três coisas que ele não previa:
 
-1. **Cancelar depois de finalizar.** Só existe `RASCUNHO -> CANCELADA`. Um candidato com boleto
-   emitido que desiste fica em AGUARDANDO_PAGAMENTO até expirar.
-2. **Recurso negado.** A inscrição fica em INDEFERIDA, que não é estado final no banco. Falta um
-   estado para "indeferida em definitivo", ou aceitar INDEFERIDA como final depois do prazo.
-3. **Voltar a editar.** Não há `AGUARDANDO_PAGAMENTO -> RASCUNHO`; quem errou o cargo depois de
-   finalizar não corrige.
+| # | Ponto | Decisão |
+|---|---|---|
+| 1 | Cancelar depois de finalizar | ✅ **Sim, enquanto não pagou** (29/10/2026). `AGUARDANDO_PAGAMENTO -> CANCELADA`, migração 0003 |
+| 2 | Recurso negado: INDEFERIDA não é estado final | ⏳ **Em aberto.** Recomendação: estado final INDEFERIDA_DEFINITIVA, para a decisão ficar na trilha e o banco recusar homologar quem já foi negado |
+| 3 | Voltar a editar depois de finalizar | ✅ **Sim, antes de pagar** (29/10/2026). `AGUARDANDO_PAGAMENTO -> RASCUNHO`, migração 0003. A cobrança pendente é invalidada quando o pagamento existir (bloco 2) |
+
+Depois de PAGA, nem cancelar nem voltar ao rascunho: o dinheiro já entrou, e a saída é outro
+fluxo.
 
 ### Limite conhecido
 

@@ -142,4 +142,44 @@ DO $$ BEGIN
              WHERE i.candidato_id = 2) = 5;
 END $$;
 
+-- 16. Decisão 3 (29/10/2026): voltar ao rascunho antes de pagar, corrigir e cancelar
+--     (decisão 1) ainda sem pagar.
+INSERT INTO candidato (cpf, nome, email) VALUES
+    ('00000000353', 'Candidato Três', 'tres@exemplo.invalid'),
+    ('00000000434', 'Candidato Quatro', 'quatro@exemplo.invalid');
+SELECT pg_temp.ctx('candidato:00000000353', 'inscrição iniciada');
+INSERT INTO inscricao (certame_id, candidato_id, cargo_id) VALUES (1, 3, 1);
+SELECT pg_temp.ctx('candidato:00000000353', 'finalizou o formulário');
+UPDATE inscricao SET estado = 'AGUARDANDO_PAGAMENTO' WHERE candidato_id = 3;
+SELECT pg_temp.espera_erro($q$UPDATE inscricao SET cargo_id = 2 WHERE candidato_id = 3$q$, 'CT004');
+SELECT pg_temp.ctx('candidato:00000000353', 'errou o cargo, voltou para corrigir');
+UPDATE inscricao SET estado = 'RASCUNHO' WHERE candidato_id = 3;
+UPDATE inscricao SET cargo_id = 2 WHERE candidato_id = 3;
+SELECT pg_temp.ctx('candidato:00000000353', 'finalizou de novo');
+UPDATE inscricao SET estado = 'AGUARDANDO_PAGAMENTO' WHERE candidato_id = 3;
+SELECT pg_temp.ctx('candidato:00000000353', 'desistiu antes de pagar');
+UPDATE inscricao SET estado = 'CANCELADA' WHERE candidato_id = 3;
+DO $$
+DECLARE caminho text;
+BEGIN
+    SELECT string_agg(coalesce(t.de, '-') || '>' || t.para, ' ' ORDER BY t.id) INTO caminho
+      FROM inscricao_transicao t JOIN inscricao i ON i.id = t.inscricao_id
+     WHERE i.candidato_id = 3;
+    ASSERT caminho = '->RASCUNHO RASCUNHO>AGUARDANDO_PAGAMENTO AGUARDANDO_PAGAMENTO>RASCUNHO '
+                     'RASCUNHO>AGUARDANDO_PAGAMENTO AGUARDANDO_PAGAMENTO>CANCELADA',
+        'caminho errado: ' || caminho;
+    ASSERT (SELECT cargo_id FROM inscricao WHERE candidato_id = 3) = 2;
+END $$;
+
+-- 17. Depois de PAGA, nem cancelar nem voltar ao rascunho.
+SELECT pg_temp.ctx('candidato:00000000434', 'inscrição iniciada');
+INSERT INTO inscricao (certame_id, candidato_id) VALUES (1, 4);
+SELECT pg_temp.ctx('candidato:00000000434', 'finalizou');
+UPDATE inscricao SET estado = 'AGUARDANDO_PAGAMENTO' WHERE candidato_id = 4;
+SELECT pg_temp.ctx('sistema:conciliacao', 'pagamento confirmado');
+UPDATE inscricao SET estado = 'PAGA' WHERE candidato_id = 4;
+SELECT pg_temp.ctx('candidato:00000000434', 'quer desistir');
+SELECT pg_temp.espera_erro($q$UPDATE inscricao SET estado = 'CANCELADA' WHERE candidato_id = 4$q$, 'CT001');
+SELECT pg_temp.espera_erro($q$UPDATE inscricao SET estado = 'RASCUNHO' WHERE candidato_id = 4$q$, 'CT001');
+
 SELECT 'TODAS AS REGRAS DO BANCO PASSARAM' AS resultado;
