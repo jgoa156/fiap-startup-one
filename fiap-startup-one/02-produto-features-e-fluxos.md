@@ -1,4 +1,4 @@
-# 2. Produto: funcionalidades e fluxos
+# 2. Produto — funcionalidades e fluxos
 
 *Plataforma de inscrição e gestão de processos seletivos. Documento de produto: **nenhuma decisão
 de nuvem aqui.** Arquitetura vem depois, e vem depois de propósito.*
@@ -9,7 +9,7 @@ de nuvem aqui.** Arquitetura vem depois, e vem depois de propósito.*
 
 | Ator | Papel | É o cliente? |
 |---|---|---|
-| **Banca organizadora** | Contratada para conduzir o certame. Configura, analisa, julga recursos, publica | ✅ **Sim, é quem paga e quem opera** |
+| **Banca organizadora** | Contratada para conduzir o certame. Configura, analisa, julga recursos, publica | ✅ **Sim — é quem paga e quem opera** |
 | **Órgão / instituição contratante** | Prefeitura, autarquia, universidade, hospital. Contrata a banca, define vagas, homologa | Influencia a compra, não opera |
 | **Candidato** | Se inscreve, paga, recorre, faz prova | ❌ Usuário, não cliente |
 | **Analista da banca** | Julga isenção, laudo, recurso | Operador interno |
@@ -17,14 +17,13 @@ de nuvem aqui.** Arquitetura vem depois, e vem depois de propósito.*
 | **Auditoria** | TCU, Ministério Público, Judiciário | Consome trilha, não opera |
 
 > **Decisão de posicionamento:** o cliente é a **banca**, não o órgão. Banca média e pequena opera
-> hoje com um fornecedor do mercado ou com sistema próprio envelhecido (o levantamento está no
-> plano de negócios, §7). As grandes têm sistema interno e não compram.
+> hoje com sistema próprio velho ou com planilha. As grandes têm sistema interno e não compram.
 
 ---
 
 ## 2. O ciclo de vida de um certame
 
-Não é um formulário. São **oito fases encadeadas**, cada uma com prazo legal e cada uma
+Não é um formulário — são **oito fases encadeadas**, cada uma com prazo legal e cada uma
 recorrível.
 
 ```
@@ -55,11 +54,10 @@ recorrível.
 └──────────────────────────────────────────────────────────────────────────┘
 ```
 
-> **Observação de domínio, não de arquitetura:** existem **cinco picos**, não um. A primeira
-> versão deste documento supunha que só a inscrição concentrava carga, e isso está errado.
-> Gabarito e resultado geram acesso simultâneo de **toda a base**, não só de quem ainda não se
-> inscreveu. Isso muda o dimensionamento e é insumo para o documento de arquitetura, não
-> conclusão dele.
+> **Observação de domínio, não de arquitetura:** existem **cinco picos**, não um. Eu havia
+> assumido que só a inscrição concentrava carga — está errado. Gabarito e resultado geram acesso
+> simultâneo de **toda a base**, não só de quem ainda não se inscreveu. Isso muda o dimensionamento
+> e é insumo para o documento de arquitetura, não conclusão dele.
 
 ---
 
@@ -93,7 +91,7 @@ recorrível.
                          ▼             │
           ┌──────────────────────────┐ │
           │  FLUXO DE ISENÇÃO        │ │
-          │  (seção 4 · prazo        │ │
+          │  (seção 4 — prazo        │ │
           │   próprio e anterior)    │ │
           └──────────┬───────────────┘ │
                      │ deferida        │
@@ -154,7 +152,7 @@ recorrível.
                     └─────────┬──────────┘
                               ▼
        ┌──────────────────────────────────────────────┐
-       │  ÁREA DO CANDIDATO · daqui até o fim         │
+       │  ÁREA DO CANDIDATO — daqui até o fim         │
        ├──────────────────────────────────────────────┤
        │  · Cartão de confirmação (local e sala)      │
        │  · Gabarito preliminar                       │
@@ -169,11 +167,11 @@ recorrível.
 ### A decisão de produto que está escondida aí
 
 **A conta é do candidato, não do certame.** Ele cria uma vez, com CPF, e reaproveita em todos os
-certames de todas as bancas que usam a plataforma: dados, documentos, laudo e histórico.
+certames de todas as bancas que usam a plataforma — dados, documentos, laudo, histórico.
 
 Isso tem três consequências:
 
-1. **Fricção despenca** na segunda inscrição em diante, e candidato de concurso se inscreve em
+1. **Fricção despenca** na segunda inscrição em diante — e candidato de concurso se inscreve em
    dezenas por ano.
 2. **Vira efeito de rede pelo lado do candidato**, que é raro num produto vendido para a banca:
    quanto mais bancas usam, mais valiosa a conta; quanto mais candidatos têm conta, mais atraente
@@ -226,13 +224,13 @@ Sub-fluxo próprio, com prazo **anterior** ao da inscrição. É onde a operaç�
                 │            ┌──────────────────────┐
                 ▼            │ Paga a taxa normal   │
    ┌─────────────────────┐   │ ou desiste           │
-   │ ISENTO · segue para │   └──────────────────────┘
+   │ ISENTO — segue para │   └──────────────────────┘
    │ inscrição sem pagar │
    └─────────────────────┘
 ```
 
 **Onde está a dor real da banca:** o volume de pedidos de isenção é alto e a análise é manual.
-A **triagem automática por regra** (não por IA, e sim por conferência de campo e de documento
+A **triagem automática por regra** (não por IA — por conferência de campo e de documento
 obrigatório) é o que transforma uma semana de trabalho em um dia. É a funcionalidade que fecha a
 venda.
 
@@ -240,7 +238,7 @@ venda.
 
 ## 5. Máquina de estados da inscrição
 
-Estado explícito é o que permite auditar anos depois, e concurso é judicializado por padrão.
+Estado explícito é o que permite auditar anos depois — e concurso é judicializado por padrão.
 
 ```
                          ┌────────────┐
@@ -283,7 +281,7 @@ pode ser reavaliada com a régua da versão 5.
 
 ---
 
-## 6. Fluxo de recurso de questão, e o efeito dominó
+## 6. Fluxo de recurso de questão — e o efeito dominó
 
 O recurso mais perigoso, porque **anular uma questão recalcula a nota de todo mundo.**
 
@@ -329,7 +327,7 @@ O recurso mais perigoso, porque **anular uma questão recalcula a nota de todo m
 
 **O agrupamento por questão é a funcionalidade que vale dinheiro.** Sem ele, a banca lê 500 textos
 sobre a mesma questão. Com ele, lê um resumo, decide uma vez e a resposta padronizada vai para os
-500, com registro individual, que é o que a lei exige.
+500 — com registro individual, que é o que a lei exige.
 
 ---
 
@@ -337,7 +335,7 @@ sobre a mesma questão. Com ele, lê um resumo, decide uma vez e a resposta padr
 
 ### A · Configuração do certame *(banca)*
 - Editor estruturado de edital: cargos, vagas, requisitos, escolaridade, taxa por nível
-- **Cronograma com dependência entre fases.** Mudou uma data, o sistema mostra o que quebra
+- **Cronograma com dependência entre fases** — mudou uma data, o sistema mostra o que quebra
 - Regras de cota e reserva legal, com percentual e arredondamento configuráveis
 - Critérios de pontuação, peso por disciplina, nota de corte, desempate ordenado
 - Cidades, locais e capacidade
@@ -348,23 +346,23 @@ sobre a mesma questão. Com ele, lê um resumo, decide uma vez e a resposta padr
 - Conta única por CPF, reaproveitável entre certames e bancas
 - Inscrição em etapas, com salvamento automático
 - Upload de documento com validação de formato e tamanho
-- **Acessibilidade WCAG**, que não é opcional: parte do público é PcD por definição
+- **Acessibilidade WCAG** — não é opcional: parte do público é PcD por definição
 - Área do candidato com linha do tempo do certame
 - Notificação por e-mail e mensagem sobre cada mudança de estado
 - Segunda via de boleto, alteração de dados dentro do prazo
 
-### C · Pagamento e financeiro *(orquestrado no provedor da banca; o dinheiro não passa por nós)*
+### C · Pagamento e financeiro
 - Pix, boleto e cartão
 - Baixa automática e conciliação
-- **Reembolso em massa**, porque certame suspenso ou anulado acontece
-- Prestação de contas da arrecadação para banca e órgão
+- **Reembolso em massa** — certame suspenso ou anulado acontece
+- Repasse e prestação de contas para banca e órgão
 - Relatório de arrecadação por cargo, cidade e dia
 
 ### D · Análise e deferimento *(banca)*
 - Fila de isenção com **triagem automática por regra**
 - Fila de laudo e atendimento especial
 - Deferimento em lote com filtro
-- Motivo padronizado, porque texto livre é o que gera nulidade
+- Motivo padronizado — texto livre é o que gera nulidade
 - Heteroidentificação: agendamento, registro e resultado
 
 ### E · Recursos
@@ -388,7 +386,7 @@ sobre a mesma questão. Com ele, lê um resumo, decide uma vez e a resposta padr
 
 ### H · Transparência e auditoria
 - Publicação de atos com carimbo de data e versão
-- **Trilha imutável**: quem, quando, o quê, sob qual versão do edital
+- **Trilha imutável** — quem, quando, o quê, sob qual versão do edital
 - Exportação para órgão e auditoria
 - Painel público de status do certame
 
@@ -401,7 +399,7 @@ sobre a mesma questão. Com ele, lê um resumo, decide uma vez e a resposta padr
 
 ## 8. O que entra no MVP
 
-Não dá para vender meio certame, porque a banca precisa do ciclo fechado. A saída é **escopo por
+Não dá para vender meio certame — a banca precisa do ciclo fechado. A saída é **escopo por
 complexidade de certame**, não por módulo.
 
 | No MVP | Fora do MVP |
@@ -415,11 +413,11 @@ complexidade de certame**, não por módulo.
 
 **Alvo do primeiro cliente:** processo seletivo simplificado de prefeitura, ou vestibular de
 faculdade privada. Milhares de candidatos, não centenas de milhares. Ciclo curto, risco baixo, e
-**um certame inteiro de ponta a ponta**, que é o que vira estudo de caso para vender o próximo.
+**um certame inteiro de ponta a ponta** — que é o que vira estudo de caso para vender o próximo.
 
 ---
 
-## 9. Análise de recurso em escala, sem IA
+## 9. Análise de recurso em escala — sem IA
 
 ### A inversão que resolve o problema
 
@@ -441,7 +439,7 @@ escolhido de uma lista fechada**, derivada do próprio edital:
    │   ( ) Nenhuma alternativa correta                │
    │   ( ) Conteúdo fora do programa do edital        │
    │   ( ) Divergência de bibliografia                │
-   │   ( ) Erro material · digitação, gráfico, imagem │
+   │   ( ) Erro material — digitação, gráfico, imagem │
    │   ( ) Outro                        ◄── vai para  │
    │                                        leitura   │
    │                                        individual│
@@ -480,11 +478,11 @@ A partir daí o agrupamento é **exato**, não semelhante:
    │     similaridade de texto clássica       │
    │     (n-gramas + MinHash) revela os 280   │
    │     recursos idênticos vindos do mesmo   │
-   │     cursinho · 1 leitura, não 280        │
+   │     cursinho — 1 leitura, não 280        │
    └──────────────────┬───────────────────────┘
                       ▼
    ╔══════════════════════════════════════════╗
-   ║ [4] DECISÃO · BANCA EXAMINADORA          ║
+   ║ [4] DECISÃO — BANCA EXAMINADORA          ║
    ║     lê 4 grupos + 12 únicos = 16 textos  ║
    ║     mantém · altera · anula              ║
    ╚══════════════════╤═══════════════════════╝
@@ -504,21 +502,21 @@ A partir daí o agrupamento é **exato**, não semelhante:
 **Resultado: o examinador lê 16 textos em vez de 500.** Sem modelo de linguagem, sem GPU, sem
 fornecedor de IA no caminho crítico.
 
-### Por que isto é melhor do que usar IA aqui, e não só mais barato
+### Por que isto é melhor do que usar IA aqui — e não só mais barato
 
 | | Agrupamento estruturado | Agrupamento por IA |
 |---|---|---|
 | **LGPD art. 20** | Nada é decidido por máquina; a máquina só ordena | Cria direito a revisão de decisão automatizada |
-| **Auditoria** | "Foi agrupado porque o candidato marcou o fundamento X", uma **explicação de uma linha** | "O modelo julgou parecido", indefensável em juízo |
+| **Auditoria** | "Foi agrupado porque o candidato marcou o fundamento X" — **explicação de uma linha** | "O modelo julgou parecido" — indefensável em juízo |
 | **Erro** | Se o candidato marca errado, o erro é dele e está registrado | Erro de agrupamento é nosso, e é invisível |
-| **Transparência no edital** | Nada a declarar | Convém declarar o uso de apoio automatizado |
+| **Transparência no edital** | Nada a declarar | Uso de apoio automatizado precisa ser declarado |
 | **Dependência** | Nenhuma | Provedor externo no dia mais crítico do certame |
 | **Custo no pico** | Zero marginal | Por token, exatamente quando o volume explode |
 
 **O risco de enterrar o recurso que está certo desaparece.** Numa clusterização por semelhança, o
-único candidato que aponta um erro factual real vira ruído estatístico. Aqui ele marca "outro",
-ou marca um fundamento e escreve algo diferente do grupo, o que a detecção de cópia expõe, e
-**cai numa fila que é lida uma a uma, por construção.**
+único candidato que aponta um erro factual real vira ruído estatístico. Aqui ele marca "outro" — ou
+marca um fundamento e escreve algo diferente do grupo, o que a detecção de cópia expõe — e **cai
+numa fila que é lida uma a uma, por construção.**
 
 ### A mesma inversão vale para a isenção
 
@@ -535,13 +533,13 @@ O candidato precisa classificar o próprio argumento, e parte vai classificar er
 mitigações, todas de produto:
 
 1. **"Outro" é sempre uma opção visível**, e cai na fila de leitura individual.
-2. **Fundamento marcado errado não prejudica o mérito.** Está no edital, e o examinador pode
+2. **Fundamento marcado errado não prejudica o mérito** — está no edital, e o examinador pode
    reclassificar antes de julgar.
 3. **O formulário explica cada fundamento com uma frase**, não com jargão jurídico.
 
 ---
 
-## 10. As três decisões, fechadas, e o que cada uma implica
+## 10. As três decisões — fechadas, e o que cada uma implica
 
 ### Decisão 1 · A plataforma vai até o resultado final
 
@@ -550,23 +548,23 @@ Não para na homologação. Ensalamento, correção, classificação e convocaç
 | Implicação | Consequência |
 |---|---|
 | **Vira sistema de registro do certame** | O custo de troca deixa de ser o de um formulário e passa a ser o do certame inteiro. Ninguém troca de fornecedor no meio |
-| **Ticket sobe** | O valor por inscrição passa a cobrir o certame inteiro, não só o formulário |
+| **Ticket sobe** | Cobra-se por fase, não só por inscrição |
 | **A exposição jurídica sobe junto** | Erro de classificação é ação judicial, não chamado de suporte. Recálculo versionado deixa de ser recurso e vira obrigação |
-| **Fronteira a definir** | Vamos até o **dado**. Malote, impressão e logística física ficam com a banca, porque é operação, não software, e destrói a margem |
+| **Fronteira a definir** | Vamos até o **dado**. Malote, impressão e logística física ficam com a banca — é operação, não software, e destrói a margem |
 
 ### Decisão 2 · Conta única do candidato
 
 Uma conta por CPF, viva entre certames e entre bancas.
 
-**A consequência que muda tudo:** a plataforma passa a ser multi-inquilino em **dois eixos ao
-mesmo tempo**. A banca é o inquilino, e o candidato é uma identidade que **atravessa
-inquilinos**. Isso é incomum e precisa ser desenhado, não improvisado.
+**A consequência que muda tudo:** a plataforma passa a ser multi-inquilino em **dois eixos ao mesmo
+tempo** — a banca é o inquilino, e o candidato é uma identidade que **atravessa inquilinos**. Isso é
+incomum e precisa ser desenhado, não improvisado.
 
 E cria um papel duplo diante da LGPD que precisa estar certo desde o começo:
 
 | Dado | Controlador | Nosso papel |
 |---|---|---|
-| Inscrição num certame | **A banca** | **Operadora**, tratamos por conta dela |
+| Inscrição num certame | **A banca** | **Operadora** — tratamos por conta dela |
 | A conta em si: cadastro, documentos, histórico | **Nós** | **Controladores** |
 
 > **Regra que decorre disso:** o laudo médico guardado na conta **não vai para a banca
@@ -574,12 +572,12 @@ E cria um papel duplo diante da LGPD que precisa estar certo desde o começo:
 > é registrada. A conveniência é reaproveitar o arquivo; o consentimento não se reaproveita.
 
 Na prática o candidato ganha uma **carteira de documentos** e uma linha do tempo de todos os
-certames em que está inscrito, e isso é, sozinho, motivo para criar conta antes mesmo de haver
+certames em que está inscrito — que é, sozinho, motivo para criar conta antes mesmo de haver
 inscrição aberta.
 
 ### Decisão 3 · Vende-se para a banca
 
-E aqui está a vantagem comercial que a rodada de ideação não tinha identificado:
+E aqui está a vantagem comercial que eu não tinha percebido ao escrever a ideia:
 
 > **Vender para a banca evita licitação.** O órgão licita a banca; a banca contrata seus
 > fornecedores como qualquer empresa privada. Compramos um ciclo de venda B2B normal em vez de
@@ -587,10 +585,10 @@ E aqui está a vantagem comercial que a rodada de ideação não tinha identific
 
 | Aspecto | Definição |
 |---|---|
-| **Perfil ideal** | Banca de porte médio, 5 a 50 certames por ano, com sistema próprio envelhecido ou fornecedor que não aguenta o pico |
+| **Perfil ideal** | Banca de porte médio, 5 a 50 certames por ano, sistema próprio envelhecido ou planilha |
 | **Quem assina** | Sócio ou diretor de operações. Empresa pequena, decisão rápida |
-| **O que trava** | O edital de licitação **do órgão** às vezes impõe requisitos de sistema à banca, e precisamos atender antes que ela concorra |
-| **Modelo de preço** | Assinatura anual pequena mais **valor por inscrição processada**, e o segundo domina |
+| **O que trava** | O edital de licitação **do órgão** às vezes impõe requisitos de sistema à banca — precisamos atender antes que ela concorra |
+| **Modelo de preço** | Assinatura anual pequena **+ valor por inscrição processada** — o segundo domina |
 | **Por que assim** | Alinha com o modelo da própria banca, que cobra taxa por candidato. **E concentra nossa receita exatamente nos dias em que o custo se concentra** |
 | **Entrada** | Um processo seletivo simplificado, ciclo curto, poucos milhares de candidatos. Ele vira o estudo de caso que vende o próximo |
 
@@ -598,14 +596,11 @@ E aqui está a vantagem comercial que a rodada de ideação não tinha identific
 
 ## 11. O que ficou aberto
 
-1. **Preço por inscrição.** Falta o número praticado no mercado. É a variável que define o
+1. **Preço por inscrição** — falta o número praticado no mercado. É a variável que define o
    negócio inteiro e não dá para estimar por analogia. Tratada com faixa e sensibilidade em
    [03-plano-de-negocios.md](03-plano-de-negocios.md), **explicitamente marcada como não
    verificada**.
-2. **Modelo de contrato para a conta única.** Se o candidato é titular e nós somos controladores
+2. **Modelo de contrato para a conta única** — se o candidato é titular e nós somos controladores
    da conta, isso precisa de política própria e de canal de atendimento ao titular. É custo fixo.
-3. ~~**Quem mais vende isto para banca de porte médio.**~~ ✅ **Verificado, e o mercado está
-   ocupado:** Gestor Editais, ProSeleta, Fábrica de Provas, ADSR, MH Informática e Instituto
-   Avalia. O levantamento está em [03-plano-de-negocios.md §7](03-plano-de-negocios.md), e o
-   efeito foi mudar a diferenciação de lugar: o argumento deixou de ser "ninguém faz isso" e
-   passou a ser "todos fazem a inscrição, quase ninguém sobrevive ao dia do pico".
+3. **Quem mais vende isto para banca de porte médio.** É a verificação mais urgente — a que evita
+   construir em cima de um mercado já ocupado sem saber.

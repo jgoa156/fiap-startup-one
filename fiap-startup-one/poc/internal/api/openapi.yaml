@@ -1,0 +1,662 @@
+openapi: 3.1.0
+info:
+  title: Lisura — API do candidato
+  version: "0.1"
+  summary: Inscrição, pagamento, devolução, avisos e resultado de concursos públicos.
+  description: |
+    A API JSON que o front (Next) chama em `/api`. Esta especificação é conferida contra as rotas
+    do servidor por teste (`TestOpenAPICobreTodasAsRotas`): rota sem documentação, ou documentação de
+    rota que não existe, quebra a suíte. Por isso ela é "viva": não sai do ar sem alguém ver.
+
+    **Sessão.** Depois de `POST /contas` ou `POST /sessoes`, a API devolve um token e grava o cookie
+    `lisura_sessao` (HttpOnly, SameSite=Lax). O front usa o cookie; clientes de teste podem mandar
+    `Authorization: Bearer <token>`. Pedido que muda dado e vem de outro site é recusado (403).
+
+    **Sob carga**, qualquer rota pode responder **503** com o nível de degradação (`degradado`: 1 sala
+    de espera, 2 só o essencial, 3 só consulta) e, na sala de espera, a posição (`fila`). O front
+    mostra a fila em vez de um erro.
+
+    **Erros** saem sempre como `{"erro": "...", "faltando": [...]}`.
+servers:
+  - url: /api
+    description: o mesmo endereço do front (o Next, na máquina local; o CloudFront, na AWS)
+tags:
+  - name: Conta
+    description: Entrar, sair, dados pessoais e documentos.
+  - name: Certames
+    description: Os concursos com inscrição aberta e os dados públicos de cada um.
+  - name: Inscrição
+    description: O formulário em passos, do rascunho ao envio, e o que acontece depois.
+  - name: Pagamento
+    description: Pix e boleto, cobrados de forma assíncrona; a devolução do que entrou a mais.
+  - name: Avisos
+    description: Os e-mails mandados ao candidato, com a prova de cada um.
+  - name: Resultado
+    description: Onde está o resultado individual e os recursos contra o gabarito.
+  - name: Integrações
+    description: Quem chama a API sem ser o candidato (o prestador de pagamento, o SNS da AWS).
+  - name: Operação
+    description: Saúde, nível de degradação e a própria especificação.
+components:
+  securitySchemes:
+    cookie:
+      type: apiKey
+      in: cookie
+      name: lisura_sessao
+    bearer:
+      type: http
+      scheme: bearer
+  parameters:
+    id:
+      name: id
+      in: path
+      required: true
+      description: Número da inscrição (ou do certame, nas rotas de certame).
+      schema: { type: integer, format: int64 }
+  responses:
+    SemSessao:
+      description: Sem sessão válida.
+      content: { application/json: { schema: { $ref: "#/components/schemas/Erro" } } }
+    NaoEncontrado:
+      description: Não existe, ou não é do candidato (as duas respostas são iguais de propósito).
+      content: { application/json: { schema: { $ref: "#/components/schemas/Erro" } } }
+    Conflito:
+      description: Fora do prazo, estado que não permite, ou já feito de outro jeito.
+      content: { application/json: { schema: { $ref: "#/components/schemas/Erro" } } }
+    Invalido:
+      description: Dado inválido; `faltando` diz o que falta.
+      content: { application/json: { schema: { $ref: "#/components/schemas/Erro" } } }
+    SemConteudo:
+      description: Feito.
+  schemas:
+    Erro:
+      type: object
+      required: [erro]
+      properties:
+        erro: { type: string }
+        faltando: { type: array, items: { type: string } }
+    Sessao:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        token: { type: string }
+    Dados:
+      type: object
+      required: [nome, email, data_nascimento, municipio, uf]
+      properties:
+        nome: { type: string }
+        email: { type: string, format: email }
+        data_nascimento: { type: string, format: date }
+        municipio: { type: string }
+        uf: { type: string, minLength: 2, maxLength: 2 }
+    Eu:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        cpf: { type: string, description: "11 dígitos" }
+        dados: { $ref: "#/components/schemas/Dados" }
+    Documento:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        tipo: { type: string, enum: [laudo, comprovante_isencao] }
+        nome_arquivo: { type: string }
+        tamanho: { type: integer }
+        enviado_em: { type: string, format: date-time }
+    CertameItem:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        nome: { type: string }
+        banca: { type: string }
+        inscricao_abre_em: { type: string, format: date-time }
+        inscricao_fecha_em: { type: string, format: date-time }
+    Fase:
+      type: object
+      properties:
+        fase: { type: string, enum: [isencao, inscricao, pagamento, homologacao, ensalamento, aplicacao, gabarito, resultado] }
+        abre_em: { type: string, format: date-time }
+        fecha_em: { type: string, format: date-time }
+    Certame:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        nome: { type: string }
+        banca: { type: string }
+        edital_versao: { type: [integer, "null"] }
+        cargos:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: integer, format: int64 }
+              nome: { type: string }
+              vagas: { type: integer }
+              taxa_centavos: { type: integer }
+        cidades_prova:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: integer, format: int64 }
+              nome: { type: string }
+              uf: { type: string }
+        cotas:
+          type: array
+          items:
+            type: object
+            properties:
+              codigo: { type: string }
+              nome: { type: string }
+              exige_laudo: { type: boolean }
+        cronograma: { type: array, items: { $ref: "#/components/schemas/Fase" } }
+    Estado:
+      type: string
+      enum: [RASCUNHO, ISENCAO_ATIVA, AGUARDANDO_PAGAMENTO, PAGA, EXPIRADA, CANCELADA, EM_ANALISE, DEFERIDA, INDEFERIDA, HOMOLOGADA]
+    Resumo:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        certame_id: { type: integer, format: int64 }
+        certame_nome: { type: string }
+        cargo_nome: { type: string }
+        estado: { $ref: "#/components/schemas/Estado" }
+        atualizada_em: { type: string, format: date-time }
+    Inscricao:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        certame_id: { type: integer, format: int64 }
+        estado: { $ref: "#/components/schemas/Estado" }
+        cargo_id: { type: integer, format: int64 }
+        cidade_prova_id: { type: [integer, "null"] }
+        cotas: { type: array, items: { type: string } }
+        necessidades:
+          type: array
+          items: { type: string, enum: [ledor, transcritor, prova_ampliada, sala_acessivel, tempo_adicional, lactante] }
+        laudo_documento_id: { type: [integer, "null"] }
+        declaracoes_aceitas_em: { type: [string, "null"], format: date-time }
+    EventoTrilha:
+      type: object
+      description: Um registro da trilha de auditoria (nunca é editado nem apagado).
+      properties:
+        evento: { type: string }
+        para: { $ref: "#/components/schemas/Estado" }
+        em: { type: string, format: date-time }
+    PedidoIsencao:
+      type: object
+      required: [hipotese]
+      properties:
+        hipotese: { type: string, enum: [cadunico, doador_medula] }
+        nis: { type: string, description: "com cadunico" }
+        documento_id: { type: integer, format: int64, description: "com doador_medula: o comprovante" }
+    Isencao:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        estado: { type: string, enum: [EM_ANALISE, DEFERIDA, INDEFERIDA] }
+        motivo_codigo: { type: [string, "null"] }
+        solicitada_em: { type: string, format: date-time }
+        decidida_em: { type: [string, "null"], format: date-time }
+    Cobranca:
+      type: object
+      description: O Pix ou o boleto. Nasce sem o código, que chega pela fila em instantes.
+      properties:
+        id: { type: integer, format: int64 }
+        metodo: { type: string, enum: [pix, boleto] }
+        valor_centavos: { type: integer }
+        estado: { type: string }
+        pix_copia_cola: { type: string }
+        linha_digitavel: { type: string }
+        vence_em: { type: string, format: date-time }
+        paga_em: { type: string, format: date-time }
+        reembolso_pendente: { type: boolean }
+    Devolucao:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        valor_centavos: { type: integer }
+        motivo: { type: string, enum: [PAGO_EM_DUPLICIDADE, PAGO_APOS_EXPIRACAO, CERTAME_CANCELADO] }
+        estado: { type: string, enum: [PENDENTE, AGUARDANDO_CHAVE, CONCLUIDA, RECUSADA] }
+        criada_em: { type: string, format: date-time }
+        concluida_em: { type: string, format: date-time }
+        recusa: { type: string, description: "por que a última chave não serviu (CHAVE_INEXISTENTE, TITULAR_DIFERENTE)" }
+        chave_informada: { type: boolean, description: "o candidato já informou uma chave (sem ela, a recusa é a da chave CPF)" }
+    Aviso:
+      type: object
+      properties:
+        evento: { type: string }
+        assunto: { type: string }
+        enviada_em: { type: string, format: date-time }
+        entregue: { type: boolean, description: "o provedor aceitou" }
+        resumo: { type: string, description: "SHA-256 do assunto e do texto: a prova do aviso" }
+        devolvido: { type: boolean, description: "voltou depois (bounce) ou o destinatário reclamou" }
+        falha: { type: string }
+        para: { type: string, format: email }
+    PedidoRecurso:
+      type: object
+      required: [numero, fundamento, argumento]
+      properties:
+        numero: { type: integer, description: "a questão" }
+        fundamento: { type: string, enum: [gabarito_errado, anular] }
+        resposta_pedida: { type: string, description: "só com gabarito_errado" }
+        argumento: { type: string }
+    Recurso:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        numero: { type: integer }
+        fundamento: { type: string }
+        resposta_pedida: { type: string }
+        criado_em: { type: string, format: date-time }
+        decisao: { type: [string, "null"], description: "null: em análise" }
+        nova_resposta: { type: string }
+        fundamentacao: { type: string }
+        julgado_em: { type: string, format: date-time }
+    Nivel:
+      type: object
+      properties:
+        nivel: { type: integer, enum: [0, 1, 2, 3] }
+security:
+  - cookie: []
+  - bearer: []
+paths:
+  /saude:
+    get:
+      tags: [Operação]
+      summary: O processo está de pé
+      security: []
+      responses:
+        "200":
+          description: ok
+          content: { application/json: { schema: { type: object, properties: { status: { type: string } } } } }
+  /openapi.yaml:
+    get:
+      tags: [Operação]
+      summary: Esta especificação
+      security: []
+      responses:
+        "200": { description: o YAML, content: { application/yaml: {} } }
+  /situacao:
+    get:
+      tags: [Operação]
+      summary: Nível de degradação agora (fora da sala de espera)
+      description: O front consulta para mostrar a faixa de "muita gente acessando". Nunca entra na fila.
+      security: []
+      responses:
+        "200": { description: o nível, content: { application/json: { schema: { $ref: "#/components/schemas/Nivel" } } } }
+  /operacao:
+    post:
+      tags: [Operação]
+      summary: Mudar o nível de degradação
+      description: Exige o segredo de operação (`LISURA_OPERACAO_SEGREDO`) no cabeçalho `Authorization` como `Operacao <segredo>`. Sem o segredo no servidor, a rota recusa sempre. GET devolve o estado.
+      security: []
+      parameters:
+        - { name: Authorization, in: header, required: true, description: "Operacao <segredo>", schema: { type: string } }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nivel: { type: integer, enum: [0, 1, 2, 3] }
+                taxa_por_segundo: { type: number, description: "quantas senhas a sala de espera chama por segundo" }
+                folga: { type: integer }
+      responses:
+        "200":
+          description: o estado novo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  nivel: { type: integer }
+                  taxa_por_segundo: { type: number }
+                  senhas_emitidas: { type: integer }
+                  senhas_liberadas: { type: integer }
+                  admissoes_nesta_instancia: { type: integer }
+        "401": { description: segredo errado ou ausente }
+        "422": { description: nível fora de 0 a 3 }
+  /contas:
+    post:
+      tags: [Conta]
+      summary: Criar a conta (primeiro acesso)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [cpf, nome, email]
+              properties:
+                cpf: { type: string, description: "com ou sem pontuação; os dígitos verificadores são conferidos" }
+                nome: { type: string }
+                email: { type: string, format: email }
+      responses:
+        "201": { description: conta criada e sessão aberta, content: { application/json: { schema: { $ref: "#/components/schemas/Sessao" } } } }
+        "409": { $ref: "#/components/responses/Conflito" }
+        "422": { $ref: "#/components/responses/Invalido" }
+  /sessoes:
+    post:
+      tags: [Conta]
+      summary: Entrar
+      description: Na POC entra-se só com o CPF; em produção, pelo gov.br.
+      security: []
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object, required: [cpf], properties: { cpf: { type: string } } } } }
+      responses:
+        "200": { description: sessão aberta, content: { application/json: { schema: { $ref: "#/components/schemas/Sessao" } } } }
+        "404": { $ref: "#/components/responses/NaoEncontrado" }
+  /sessoes/sair:
+    post:
+      tags: [Conta]
+      summary: Sair (apaga o cookie)
+      security: []
+      responses:
+        "204": { $ref: "#/components/responses/SemConteudo" }
+  /eu:
+    get:
+      tags: [Conta]
+      summary: Quem está logado
+      responses:
+        "200": { description: a conta, content: { application/json: { schema: { $ref: "#/components/schemas/Eu" } } } }
+        "401": { $ref: "#/components/responses/SemSessao" }
+  /conta:
+    put:
+      tags: [Conta]
+      summary: Atualizar os dados pessoais
+      description: Valem para todos os certames. Um e-mail novo volta a receber os avisos (o antigo pode estar suprimido).
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/Dados" } } }
+      responses:
+        "204": { $ref: "#/components/responses/SemConteudo" }
+        "401": { $ref: "#/components/responses/SemSessao" }
+        "422": { $ref: "#/components/responses/Invalido" }
+  /conta/documentos:
+    get:
+      tags: [Conta]
+      summary: A carteira de documentos da conta
+      responses:
+        "200": { description: os documentos, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/Documento" } } } } }
+        "401": { $ref: "#/components/responses/SemSessao" }
+    post:
+      tags: [Conta]
+      summary: Enviar um documento (laudo ou comprovante)
+      description: PDF, JPG ou PNG até 5 MB, conferido pelo conteúdo, não pela extensão.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [tipo, arquivo]
+              properties:
+                tipo: { type: string, enum: [laudo, comprovante_isencao] }
+                arquivo: { type: string, format: binary }
+      responses:
+        "201": { description: guardado, content: { application/json: { schema: { type: object, properties: { id: { type: integer } } } } } }
+        "413": { description: arquivo maior que 5 MB }
+        "415": { description: formato que não é PDF, JPG nem PNG }
+  /certames:
+    get:
+      tags: [Certames]
+      summary: Certames com inscrição aberta
+      security: []
+      responses:
+        "200": { description: a lista, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/CertameItem" } } } } }
+  /certames/{id}:
+    get:
+      tags: [Certames]
+      summary: Dados públicos do certame
+      description: O front lê primeiro o arquivo estático `/publico/certames/{id}.json` (CDN) e só cai aqui se ele faltar.
+      security: []
+      parameters: [{ $ref: "#/components/parameters/id" }]
+      responses:
+        "200": { description: o certame, content: { application/json: { schema: { $ref: "#/components/schemas/Certame" } } } }
+        "404": { $ref: "#/components/responses/NaoEncontrado" }
+  /certames/{id}/isencao:
+    get:
+      tags: [Certames]
+      summary: O pedido de isenção do candidato neste certame
+      parameters: [{ $ref: "#/components/parameters/id" }]
+      responses:
+        "200": { description: o pedido, ou null se não há, content: { application/json: { schema: { oneOf: [{ $ref: "#/components/schemas/Isencao" }, { type: "null" }] } } } }
+    post:
+      tags: [Certames]
+      summary: Pedir isenção da taxa
+      parameters: [{ $ref: "#/components/parameters/id" }]
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/PedidoIsencao" } } }
+      responses:
+        "200": { description: o pedido, content: { application/json: { schema: { $ref: "#/components/schemas/Isencao" } } } }
+        "409": { $ref: "#/components/responses/Conflito" }
+        "422": { $ref: "#/components/responses/Invalido" }
+  /certames/{id}/inscricoes:
+    post:
+      tags: [Inscrição]
+      summary: Abrir uma inscrição (rascunho)
+      parameters: [{ $ref: "#/components/parameters/id" }]
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object, required: [cargo_id], properties: { cargo_id: { type: integer } } } } }
+      responses:
+        "201": { description: o rascunho, content: { application/json: { schema: { $ref: "#/components/schemas/Inscricao" } } } }
+        "409": { description: fora do prazo, ou certame cancelado }
+  /inscricoes:
+    get:
+      tags: [Inscrição]
+      summary: As inscrições do candidato
+      responses:
+        "200": { description: a lista, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/Resumo" } } } } }
+  /inscricoes/{id}:
+    get:
+      tags: [Inscrição]
+      summary: A inscrição, para revisar
+      parameters: [{ $ref: "#/components/parameters/id" }]
+      responses:
+        "200": { description: a inscrição, content: { application/json: { schema: { $ref: "#/components/schemas/Inscricao" } } } }
+        "404": { $ref: "#/components/responses/NaoEncontrado" }
+  /inscricoes/{id}/pendencias:
+    get:
+      tags: [Inscrição]
+      summary: O que falta para enviar
+      parameters: [{ $ref: "#/components/parameters/id" }]
+      responses:
+        "200":
+          description: as partes que faltam (dados_pessoais, cidade_prova, laudo, declaracoes)
+          content: { application/json: { schema: { type: object, properties: { faltando: { type: array, items: { type: string } } } } } }
+  /inscricoes/{id}/cargo:
+    put:
+      tags: [Inscrição]
+      summary: Passo do cargo
+      parameters: [{ $ref: "#/components/parameters/id" }]
+      requestBody: { required: true, content: { application/json: { schema: { type: object, properties: { cargo_id: { type: integer } } } } } }
+      responses: { "204": { $ref: "#/components/responses/SemConteudo" }, "409": { $ref: "#/components/responses/Conflito" } }
+  /inscricoes/{id}/cidade:
+    put:
+      tags: [Inscrição]
+      summary: Passo da cidade de prova
+      parameters: [{ $ref: "#/components/parameters/id" }]
+      requestBody: { required: true, content: { application/json: { schema: { type: object, properties: { cidade_id: { type: integer } } } } } }
+      responses: { "204": { $ref: "#/components/responses/SemConteudo" }, "409": { $ref: "#/components/responses/Conflito" } }
+  /inscricoes/{id}/cotas:
+    put:
+      tags: [Inscrição]
+      summary: Passo da reserva de vagas
+      parameters: [{ $ref: "#/components/parameters/id" }]
+      requestBody: { required: true, content: { application/json: { schema: { type: object, properties: { cotas: { type: array, items: { type: string } } } } } } }
+      responses: { "204": { $ref: "#/components/responses/SemConteudo" }, "409": { $ref: "#/components/responses/Conflito" } }
+  /inscricoes/{id}/atendimento:
+    put:
+      tags: [Inscrição]
+      summary: Passo do atendimento especial e do laudo
+      parameters: [{ $ref: "#/components/parameters/id" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                necessidades: { type: array, items: { type: string } }
+                laudo_documento_id: { type: [integer, "null"] }
+      responses: { "204": { $ref: "#/components/responses/SemConteudo" }, "409": { $ref: "#/components/responses/Conflito" } }
+  /inscricoes/{id}/declaracoes:
+    put:
+      tags: [Inscrição]
+      summary: Passo das declarações
+      parameters: [{ $ref: "#/components/parameters/id" }]
+      requestBody: { required: true, content: { application/json: { schema: { type: object, properties: { aceito: { type: boolean } } } } } }
+      responses: { "204": { $ref: "#/components/responses/SemConteudo" }, "409": { $ref: "#/components/responses/Conflito" } }
+  /inscricoes/{id}/finalizar:
+    post:
+      tags: [Inscrição]
+      summary: Enviar a inscrição
+      description: Idempotente. Repetido, responde o mesmo estado com `reenvio` verdadeiro, sem novo evento na trilha.
+      parameters: [{ $ref: "#/components/parameters/id" }]
+      responses:
+        "200":
+          description: o estado novo
+          content:
+            application/json:
+              schema: { type: object, properties: { estado: { $ref: "#/components/schemas/Estado" }, reenvio: { type: boolean } } }
+        "409": { $ref: "#/components/responses/Conflito" }
+        "422": { $ref: "#/components/responses/Invalido" }
+  /inscricoes/{id}/trilha:
+    get:
+      tags: [Inscrição]
+      summary: O histórico (a trilha de auditoria)
+      parameters: [{ $ref: "#/components/parameters/id" }]
+      responses:
+        "200": { description: os eventos, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/EventoTrilha" } } } } }
+  /inscricoes/{id}/cartao:
+    get:
+      tags: [Inscrição]
+      summary: Onde está o cartão de confirmação
+      description: O cartão é uma página estática com um código que não se deduz do número. `disponivel` falso enquanto a fila não o publicou.
+      parameters: [{ $ref: "#/components/parameters/id" }]
+      responses:
+        "200": { description: o endereço, content: { application/json: { schema: { type: object, properties: { disponivel: { type: boolean }, url: { type: string } } } } } }
+  /inscricoes/{id}/pagamento:
+    get:
+      tags: [Pagamento]
+      summary: As cobranças da inscrição
+      parameters: [{ $ref: "#/components/parameters/id" }]
+      responses:
+        "200": { description: as cobranças, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/Cobranca" } } } } }
+    post:
+      tags: [Pagamento]
+      summary: Pagar com Pix ou gerar o boleto
+      description: Responde já; o código chega pela fila. Repetir não gera segunda cobrança vigente do mesmo método.
+      parameters: [{ $ref: "#/components/parameters/id" }]
+      requestBody: { required: true, content: { application/json: { schema: { type: object, required: [metodo], properties: { metodo: { type: string, enum: [pix, boleto] } } } } } }
+      responses:
+        "200": { description: a cobrança, content: { application/json: { schema: { $ref: "#/components/schemas/Cobranca" } } } }
+        "409": { description: prazo encerrado, inscrição que não aguarda pagamento, ou certame cancelado }
+  /inscricoes/{id}/pagamento/{cobranca}/simular:
+    post:
+      tags: [Pagamento]
+      summary: (sandbox) O candidato pagando no banco de teste
+      description: Só existe com `LISURA_SANDBOX` e o prestador simulado. A confirmação chega pelo aviso do prestador.
+      parameters:
+        - { $ref: "#/components/parameters/id" }
+        - { name: cobranca, in: path, required: true, schema: { type: integer } }
+      responses:
+        "202": { description: pago no banco de teste }
+        "404": { description: sandbox desligado, ou cobrança que não é da inscrição }
+        "409": { description: Pix já pago }
+  /inscricoes/{id}/devolucoes:
+    get:
+      tags: [Pagamento]
+      summary: O que volta ao candidato
+      parameters: [{ $ref: "#/components/parameters/id" }]
+      responses:
+        "200": { description: as devoluções, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/Devolucao" } } } } }
+  /inscricoes/{id}/devolucoes/{devolucao}/chave:
+    put:
+      tags: [Pagamento]
+      summary: Informar a chave Pix da devolução
+      description: Só enquanto a devolução espera chave. O prestador confere que o titular é o CPF da conta; se não for, nada sai e a devolução volta a esperar, com `recusa`.
+      parameters:
+        - { $ref: "#/components/parameters/id" }
+        - { name: devolucao, in: path, required: true, schema: { type: integer } }
+      requestBody: { required: true, content: { application/json: { schema: { type: object, required: [chave], properties: { chave: { type: string, description: "e-mail, +55 com DDD, CPF ou chave aleatória; CNPJ é recusado" } } } } } }
+      responses:
+        "202": { description: aceita; o prestador confere e devolve }
+        "404": { $ref: "#/components/responses/NaoEncontrado" }
+        "409": { description: a devolução já não espera chave }
+        "422": { description: chave em formato inválido }
+  /inscricoes/{id}/avisos:
+    get:
+      tags: [Avisos]
+      summary: Os e-mails mandados sobre a inscrição
+      parameters: [{ $ref: "#/components/parameters/id" }]
+      responses:
+        "200": { description: os avisos, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/Aviso" } } } } }
+  /inscricoes/{id}/resultado:
+    get:
+      tags: [Resultado]
+      summary: Onde está o resultado individual
+      description: A fatia estática e a chave da linha do candidato. No pico, o front deriva a chave do código do cartão e nem chama esta rota.
+      parameters: [{ $ref: "#/components/parameters/id" }]
+      responses:
+        "200":
+          description: os endereços
+          content:
+            application/json:
+              schema: { type: object, properties: { chave: { type: string }, url: { type: string }, lista: { type: string }, gabarito: { type: string } } }
+  /inscricoes/{id}/recursos:
+    get:
+      tags: [Resultado]
+      summary: Os recursos da inscrição, com a decisão de cada um
+      parameters: [{ $ref: "#/components/parameters/id" }]
+      responses:
+        "200": { description: os recursos, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/Recurso" } } } } }
+    post:
+      tags: [Resultado]
+      summary: Recorrer de uma questão
+      description: Exige a inscrição homologada e a janela de recurso aberta; um recurso por questão.
+      parameters: [{ $ref: "#/components/parameters/id" }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/PedidoRecurso" } } } }
+      responses:
+        "201": { description: registrado, content: { application/json: { schema: { type: object, properties: { id: { type: integer } } } } } }
+        "409": { description: recurso repetido, ou sem gabarito preliminar }
+        "422": { $ref: "#/components/responses/Invalido" }
+  /psp/aviso:
+    post:
+      tags: [Integrações]
+      summary: Aviso de pagamento do prestador (webhook)
+      description: Assinado com HMAC-SHA256 do corpo (`LISURA_PSP_SEGREDO`); sem assinatura válida, 401. O mesmo pagamento avisado várias vezes é processado uma vez.
+      security: []
+      parameters:
+        - { name: X-Assinatura, in: header, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                pagamento_id: { type: string }
+                cobranca_id: { type: string }
+                referencia: { type: integer }
+                valor_centavos: { type: integer }
+                pago_em: { type: string, format: date-time }
+      responses:
+        "200": { description: o que foi feito com o pagamento, content: { application/json: { schema: { type: object, properties: { resultado: { type: string } } } } } }
+        "401": { description: assinatura inválida }
+  /ses/eventos:
+    post:
+      tags: [Integrações]
+      summary: Devoluções e reclamações dos avisos (SNS da AWS)
+      description: Só com `LISURA_SES_TOPICO`. Aceita apenas mensagem do tópico configurado, assinada pelo SNS (certificado de `sns.<região>.amazonaws.com`); confirma a inscrição no tópico sozinha.
+      security: []
+      requestBody: { required: true, content: { text/plain: {}, application/json: {} } }
+      responses:
+        "200": { description: registrado (ou ignorado, se não for evento do SES) }
+        "403": { description: não veio do SNS do nosso tópico }
+        "500": { description: falhou aqui; o SNS repete }

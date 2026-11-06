@@ -1,0 +1,35 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Introdução" />
+
+# Sistema de design da Lisura
+
+O portal do candidato usa o **Ant Design 6** com o tema da Lisura (`src/tema/tema.ts`) e os tokens
+da paleta **5 · Grafite** (`src/tema/tokens.css`). A estrutura segue o protótipo aprovado do Inclusa:
+lateral em cartão flutuante, botões e campos em pílula, alvo de toque de 44 px, e a cor nunca como o
+único sinal (selo sempre com ícone e texto).
+
+## O que tem aqui
+
+- **Fundamentos**: as cores (com o contraste de cada uma), a tipografia, os raios, as sombras e o
+  tamanho de toque.
+- **Ant Design com o tema**: os componentes da biblioteca como o tema os veste. É o que uma tela nova
+  deve usar antes de criar um componente.
+- **Componentes**: os componentes próprios do portal (selo, cartões de escolha, sala de espera,
+  moldura), com controles para mexer em cada propriedade.
+- **Telas**: os blocos das telas reais (situação da inscrição, devoluções, avisos), cada um em todos
+  os estados que o candidato pode ver. A API é simulada por história, então os estados raros
+  (aviso que voltou, chave Pix recusada, fila no pico) aparecem sem precisar provocá-los.
+
+## Por que é "viva"
+
+As histórias importam os componentes do portal, não cópias. Se um componente muda de propriedade e a
+história não acompanha, o `npm run design` (o build deste site) falha.
+
+## Regras que valem para toda tela
+
+1. **Um botão primário por tela.** O resto é secundário ou link.
+2. **Ícone e texto, nunca só cor**: selos, estados de escolha, alertas.
+3. **Alvo de toque de 44 px** (`controlHeight` do tema).
+4. **Erro diz o que fazer**, não o código: "O prazo de pagamento terminou", não "409".
+5. **Sob carga, fila honesta em vez de erro**: a sala de espera mostra a posição e o tempo.

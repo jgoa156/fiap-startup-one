@@ -1,0 +1,336 @@
+<!doctype html><html lang="pt-BR" data-theme="light"><head><meta charset="utf-8">
+<title>Lisura — defesa multicloud</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --paper:#EEF1F3; --surface:#FFFFFF; --surface-2:#F5F7F8;
+  --ink:#0F1A1F; --ink-2:#4A5D66; --ink-3:#7A8C95;
+  --rule:#D5DDE1; --rule-2:#B3C1C8;
+  --accent:#15505F; --accent-soft:#DBE9ED; --accent-ink:#0C3743;
+  --ok:#186049; --ok-soft:#D6E9E1;
+  --no:#93302F; --no-soft:#F3DDDC;
+  --amber:#875607; --amber-soft:#F6E7CC;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:#fff}
+body{font-family:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;color:var(--ink);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+h1,h2,h3{margin:0;text-wrap:balance}
+p{margin:0}
+table{border-collapse:collapse;width:100%}
+
+/* ── slide ─────────────────────────────────────────────────────────── */
+.slide{
+  width:1280px;height:720px;overflow:hidden;background:var(--surface);
+  display:flex;flex-direction:column;padding:34px 46px 24px;
+  break-after:page;page-break-after:always;position:relative;
+}
+.slide:last-of-type{break-after:auto;page-break-after:auto}
+.sh{display:flex;align-items:baseline;gap:16px;border-bottom:2px solid var(--rule);padding-bottom:11px;margin-bottom:18px}
+.sn{font-family:"IBM Plex Mono",monospace;font-size:15px;font-weight:600;letter-spacing:.1em;color:var(--accent)}
+.sh h2{font-family:"IBM Plex Serif",serif;font-size:29px;font-weight:700;line-height:1.14;flex:1}
+.st{font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--ink-3);white-space:nowrap}
+.body{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;gap:12px}
+.sf{margin-top:12px;padding-top:8px;border-top:1px solid var(--rule);display:flex;justify-content:space-between;
+    font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--ink-3);letter-spacing:.04em}
+
+/* ── primitivos ────────────────────────────────────────────────────── */
+.lead{font-family:"IBM Plex Serif",serif;font-size:29px;font-weight:600;line-height:1.24}
+.sub{font-size:18px;color:var(--ink-2);line-height:1.45}
+.big{font-family:"IBM Plex Serif",serif;font-size:44px;font-weight:700;line-height:1}
+.lbl{font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.card{border:1.5px solid var(--rule);border-radius:6px;padding:15px 18px;background:var(--surface-2)}
+.card.ok{border-color:var(--ok);background:var(--ok-soft)}
+.card.no{border-color:var(--no);background:var(--no-soft)}
+.card.ac{border-color:var(--accent);background:var(--accent-soft)}
+.card.am{border-color:var(--amber);background:var(--amber-soft)}
+.stat{display:flex;align-items:stretch;gap:0;border:1.5px solid var(--rule);border-radius:6px;overflow:hidden}
+.stat>div{flex:1;padding:12px 14px;text-align:center;border-right:1px solid var(--rule)}
+.stat>div:last-child{border-right:0}
+.stat .n{font-family:"IBM Plex Serif",serif;font-size:35px;font-weight:700;line-height:1;color:var(--accent)}
+.stat .k{font-size:14px;color:var(--ink-2);margin-top:6px;line-height:1.3}
+table.t{font-size:16.5px}
+table.t th{text-align:left;font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--ink-3);border-bottom:1.5px solid var(--rule-2);padding:6px 9px}
+table.t td{border-bottom:1px solid var(--rule);padding:9px 10px;vertical-align:top}
+table.t tr.hi td{background:var(--no-soft)}
+table.t tr.gd td{background:var(--ok-soft)}
+table.t td.n{text-align:right;font-family:"IBM Plex Mono",monospace;white-space:nowrap}
+.verdict{border:2px solid var(--accent);background:var(--accent-soft);border-radius:6px;padding:15px 18px;
+  text-align:center;font-family:"IBM Plex Serif",serif;font-size:23px;font-weight:700;color:var(--accent-ink);line-height:1.3}
+.ruler{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.rs{border:1.5px solid var(--rule);border-radius:5px;padding:9px;text-align:center;background:var(--surface-2)}
+.rs .rn{font-family:"IBM Plex Mono",monospace;font-size:20px;font-weight:600;color:var(--ink-3)}
+.rs .rl{font-size:14px;margin-top:3px;line-height:1.25}
+.rs .rm{font-family:"IBM Plex Mono",monospace;font-size:10px;font-weight:600;letter-spacing:.07em;margin-top:6px;display:block}
+.rs.here{border-color:var(--amber);background:var(--amber-soft)} .rs.here .rm{color:var(--amber)}
+.rs.keep{border-color:var(--ok);background:var(--ok-soft);border-width:2.5px} .rs.keep .rm{color:var(--ok)}
+.rs.rej{border-color:var(--no);background:var(--no-soft)} .rs.rej .rm{color:var(--no)}
+.trig{display:flex;gap:11px;align-items:flex-start;border:1.5px solid var(--accent);background:var(--accent-soft);
+  border-radius:5px;padding:14px 16px;font-size:17.5px;line-height:1.4}
+.trig .tn{font-family:"IBM Plex Mono",monospace;font-weight:700;color:var(--accent);flex:0 0 auto}
+img.diag{width:100%;height:100%;object-fit:contain;display:block}
+
+/* ── roteiro ───────────────────────────────────────────────────────── */
+.say{display:none}
+html[data-mode="roteiro"] .slide{width:186mm;height:auto;min-height:0;padding:0;break-after:auto;page-break-after:auto;
+  break-inside:avoid;page-break-inside:avoid;margin-bottom:16px;border:0}
+html[data-mode="roteiro"] .sh{border-bottom:2px solid var(--accent);margin-bottom:10px}
+html[data-mode="roteiro"] .sh h2{font-size:17pt}
+html[data-mode="roteiro"] .body{border:1px solid var(--rule);border-radius:5px;padding:14px;
+  aspect-ratio:16/9;zoom:.46;justify-content:center}
+html[data-mode="roteiro"] .say{display:block;margin-top:11px;font-size:10.5pt}
+html[data-mode="roteiro"] .say p{margin:0 0 7px}
+html[data-mode="roteiro"] .say .beat{margin-top:9px;border-left:3px solid var(--amber);background:var(--amber-soft);
+  padding:7px 11px;font-size:9.5pt}
+html[data-mode="roteiro"] .sf{display:none}
+html[data-mode="roteiro"] body{font-size:10.5pt}
+html[data-mode="roteiro"] .cover{border-bottom:3px solid var(--accent);padding-bottom:13px;margin-bottom:16px}
+html[data-mode="roteiro"] .cover h1{font-family:"IBM Plex Serif",serif;font-size:22pt;line-height:1.15;margin-bottom:7px}
+.cover{display:none} html[data-mode="roteiro"] .cover{display:block}
+
+@page{size:1280px 720px;margin:0}
+html[data-mode="roteiro"] { }
+</style>
+</head><body>
+
+<div class="cover">
+  <h1>Lisura — defesa da estratégia multicloud</h1>
+  <div class="sub">Roteiro do apresentador · Soluções Multicloud · FIAP · 1 apresentador · 4–6 min de defesa + 2–4 min de discussão</div>
+  <div class="verdict" style="margin-top:12px;font-size:14pt">Não à arquitetura multicloud. Sim ao controle e ao backup fora do provedor primário.</div>
+</div>
+
+<!-- ─────────────────────────── 01 ─────────────────────────── -->
+<section class="slide">
+  <div class="sh"><span class="sn">01</span><h2>Lisura — o produto, a nuvem e onde estamos</h2><span class="st">0:00 – 0:55 · 55s</span></div>
+  <div class="body">
+    <div class="lead">A carga do ano cabe em poucas horas. E essas horas têm data marcada em edital.</div>
+    <table class="t"><thead><tr><th>Os cinco picos de um certame</th><th>Quem acessa</th><th>Por que dói</th></tr></thead><tbody>
+      <tr><td><b>1 ·</b> Encerramento da <b>isenção</b></td><td>quem pede isenção</td><td>prazo anterior, já concentrado</td></tr>
+      <tr><td><b>2 ·</b> Encerramento da <b>inscrição</b></td><td>quem ainda não se inscreveu</td><td><b>escrita pesada</b> — cadastro, upload, cobrança</td></tr>
+      <tr class="hi"><td><b>3 ·</b> <b>Cartão de confirmação</b></td><td><b>a base inteira</b></td><td>todos querem saber onde é a prova</td></tr>
+      <tr class="hi"><td><b>4 ·</b> <b>Gabarito</b> + recurso</td><td><b>a base inteira</b></td><td>leitura em massa, depois escrita em massa</td></tr>
+      <tr class="hi"><td><b>5 ·</b> <b>Resultado</b> e classificação</td><td><b>a base inteira</b></td><td><b>o maior de todos</b></td></tr>
+    </tbody></table>
+    <div class="stat">
+      <div><div class="n">72</div><div class="k">bancas<br>organizadoras</div></div>
+      <div><div class="n">7,7 mi</div><div class="k">inscrições<br>por ano</div></div>
+      <div><div class="n">40×</div><div class="k">o pico sobre<br>a média</div></div>
+      <div><div class="n">R$ 27,4 mi</div><div class="k">ARR · EBITDA<br>+R$ 5,3 mi</div></div>
+    </div>
+  </div>
+  <div class="sf"><span>LISURA · SOLUÇÕES MULTICLOUD</span><span>FIAP · 1 / 8</span></div>
+  <div class="say">
+    <p><strong>O produto.</strong> Lisura conduz um processo seletivo público de ponta a ponta — do edital à homologação do resultado. Vendemos para <strong>bancas organizadoras</strong>, as empresas contratadas por prefeituras e universidades para realizar concursos.</p>
+    <p><strong>Por que exige nuvem.</strong> Não por escalabilidade genérica. Porque <strong>a carga do ano inteiro cabe em poucas horas</strong> — e são cinco picos, não um. Eu supunha que a inscrição era o pior; não é. No pico de inscrição só acessa quem ainda não se inscreveu. <strong>Nos picos de cartão, gabarito e resultado acessa a base inteira, ao mesmo tempo.</strong></p>
+    <p>E a característica que organiza tudo: <strong>o pico tem data publicada em edital, com meses de antecedência.</strong> Sabemos a hora exata em que vamos precisar de 40 vezes a capacidade.</p>
+    <p><strong>Onde estamos.</strong> Breakeven no ano 4, rodada de R$ 80 milhões. Hoje, 72 bancas e R$ 27 milhões de ARR. Com 6 bancas uma instância bastava. <strong>O conselho perguntou o que acontece se a nuvem cair — e se não deveríamos estar em duas.</strong></p>
+    <div class="beat"><b>MARCAÇÃO:</b> plante os cinco picos aqui. O slide 3 depende de a plateia já ter entendido que a carga é concentrada e agendada.</div>
+  </div>
+</section>
+
+<!-- ─────────────────────────── 02 ─────────────────────────── -->
+<section class="slide">
+  <div class="sh"><span class="sn">02</span><h2>A pergunta e a resposta</h2><span class="st">0:55 – 1:25 · 30s</span></div>
+  <div class="body">
+    <div class="verdict">ADOTAR MULTICLOUD?<br><span style="font-size:26px">NÃO como arquitetura.<br>SIM para DNS, WAF, status e backup.</span></div>
+    <div class="ruler">
+      <div class="rs keep"><div class="rn">1</div><div class="rl">Backup &amp; restore</div><span class="rm">FICAMOS — com restauração testada</span></div>
+      <div class="rs"><div class="rn">2</div><div class="rl">Pilot light</div><span class="rm">&nbsp;</span></div>
+      <div class="rs rej"><div class="rn">3</div><div class="rl">Warm standby</div><span class="rm">REJEITAMOS</span></div>
+      <div class="rs rej"><div class="rn">4</div><div class="rl">Ativo-ativo</div><span class="rm">REJEITAMOS</span></div>
+    </div>
+    <div class="card ac"><div class="lbl" style="color:var(--accent);margin-bottom:5px">E o motivo não é custo</div>
+      <div class="sub" style="font-size:17px;color:var(--ink)">As duas opções custam <b>praticamente o mesmo</b>: R$ 1,66 milhão contra R$ 1,69 milhão por ano.<br>
+      <b>Não é uma escolha entre proteção e economia. É entre duas proteções pelo mesmo preço</b> — e só uma cobre a falha que acontece.</div></div>
+  </div>
+  <div class="sf"><span>LISURA · SOLUÇÕES MULTICLOUD</span><span>FIAP · 2 / 8</span></div>
+  <div class="say">
+    <p>A pergunta do trabalho é uma só: <strong>adotar multicloud, ou não?</strong> Nossa resposta: <strong>não como arquitetura</strong> — e <strong>sim</strong> para quatro coisas específicas, que eu mostro no slide 6.</p>
+    <p>Continuidade é uma régua de quatro pontos. Ficamos no <strong>1</strong>, backup e restauração — mas com a restauração de fato testada, o que hoje não acontece. <strong>Rejeitamos o 3 e o 4.</strong></p>
+    <p>E quero tirar um argumento da mesa logo de início: <strong>não é por dinheiro.</strong> A segunda nuvem custaria R$ 1,66 milhão por ano; o que vamos fazer no lugar custa R$ 1,69 milhão. <strong>Custam o mesmo.</strong> A escolha é sobre o que o dinheiro compra.</p>
+    <div class="beat"><b>MARCAÇÃO:</b> dizer a tese antes de defendê-la. E matar o "vocês estão economizando" já aqui — senão a plateia ouve o resto procurando o corte de custo.</div>
+  </div>
+</section>
+
+<!-- ─────────────────────────── 03 ─────────────────────────── -->
+<section class="slide">
+  <div class="sh"><span class="sn">03</span><h2>O que realmente derruba o sistema</h2><span class="st">1:25 – 2:15 · 50s</span></div>
+  <div class="body">
+    <div class="sub" style="font-size:17px">Quando a notícia diz <i>“site do concurso fora do ar no último dia”</i>, a causa é uma destas:</div>
+    <table class="t"><thead><tr><th>Causa real de indisponibilidade</th><th style="text-align:right">Multicloud resolve?</th></tr></thead><tbody>
+      <tr><td>Pool de conexões do banco esgotado com 30× a carga</td><td class="n"><b style="color:var(--no)">não</b></td></tr>
+      <tr><td>Geração síncrona de boleto e cartão consumindo a CPU</td><td class="n"><b style="color:var(--no)">não</b></td></tr>
+      <tr><td>Consulta sem índice que só aparece com 200 mil linhas</td><td class="n"><b style="color:var(--no)">não</b></td></tr>
+      <tr><td>Capacidade nunca ensaiada para o pico</td><td class="n"><b style="color:var(--no)">não</b></td></tr>
+      <tr><td>Implantação ruim na véspera do prazo</td><td class="n"><b style="color:var(--no)">não</b></td></tr>
+      <tr><td>Um certame gigante degradando os outros inquilinos</td><td class="n"><b style="color:var(--no)">não</b></td></tr>
+      <tr class="gd"><td><b>Queda regional total do provedor</b> — a mais rara da lista</td><td class="n"><b style="color:var(--ok)">sim</b></td></tr>
+    </tbody></table>
+    <div class="verdict" style="border-color:var(--no);background:var(--no-soft);color:var(--no)">
+      Das sete causas, multicloud cobre <b>uma</b> — e é a última em frequência.</div>
+  </div>
+  <div class="sf"><span>LISURA · SOLUÇÕES MULTICLOUD</span><span>FIAP · 3 / 8</span></div>
+  <div class="say">
+    <p>Este é o argumento que decide, e ele não muda com o tamanho do caixa.</p>
+    <p>Quando sai a notícia de que o site do concurso caiu no último dia, <strong>a causa quase nunca é o provedor de nuvem ter caído.</strong> É uma destas sete — e seis delas são nossas, não do provedor.</p>
+    <p>Olhem a coluna da direita. <strong>Uma segunda nuvem rodando o mesmo software mal dimensionado esgota o mesmo pool de conexões, executa a mesma consulta sem índice e recebe a mesma implantação ruim.</strong> Você replicou o gargalo, não a capacidade.</p>
+    <p>E tem um detalhe que muda o peso da única linha que multicloud cobre: <strong>aqui a falha é reversível.</strong> Existe registro de prazo de inscrição estendido por decisão judicial por indisponibilidade do site. É caro em reputação — mas <strong>ninguém perde o direito de concorrer</strong>. Não estamos comprando proteção contra dano irreversível.</p>
+    <div class="beat"><b>MARCAÇÃO:</b> pausa depois de “cobre uma”. Este slide é a defesa inteira. Se só um slide ficar na memória da banca, tem que ser este.</div>
+  </div>
+</section>
+
+<!-- ─────────────────────────── 04 ─────────────────────────── -->
+<section class="slide">
+  <div class="sh"><span class="sn">04</span><h2>Prós e contras</h2><span class="st">2:15 – 3:05 · 50s</span></div>
+  <div class="body">
+    <div class="cols">
+      <div>
+        <div class="lbl" style="color:var(--no);margin-bottom:6px">Prós — 8 analisados, 1 válido</div>
+        <table class="t"><tbody>
+          <tr><td>❌ Descorrelação de risco com o cliente</td></tr>
+          <tr><td>❌ Exigência regulatória de continuidade</td></tr>
+          <tr><td>❌ Diversidade de fornecedor de IA</td></tr>
+          <tr><td>❌ Soberania em expansão internacional</td></tr>
+          <tr><td>❌ Arbitragem de custo entre provedores</td></tr>
+          <tr><td>⚠️ Evitar <i>lock-in</i> — egresso grátis desde 2024</td></tr>
+          <tr><td>⚠️ Poder de negociação — fragmenta o desconto</td></tr>
+          <tr class="gd"><td>✅ <b>Resiliência a falha de provedor</b> — o único</td></tr>
+        </tbody></table>
+      </div>
+      <div>
+        <div class="lbl" style="color:var(--accent);margin-bottom:6px">Contras — o dinheiro resolve?</div>
+        <table class="t"><tbody>
+          <tr class="hi"><td>🔴 <b>Eficácia</b> — cobre 1 de 7 causas</td><td class="n">não</td></tr>
+          <tr class="hi"><td>🔴 <b>Failover não exercitado</b> — roda 1× a cada 4 anos</td><td class="n">não</td></tr>
+          <tr><td>🟡 Talento — <b>64%</b> sem expertise, só <b>8%</b> maduras</td><td class="n">em parte</td></tr>
+          <tr><td>🟡 Custo — 31% do EBITDA</td><td class="n">sim</td></tr>
+          <tr><td>🟡 Superfície de segurança dobrada</td><td class="n">sim</td></tr>
+          <tr><td>🟡 Menor denominador comum</td><td class="n">não</td></tr>
+        </tbody></table>
+        <div class="card" style="margin-top:10px;padding:9px 12px">
+          <div style="font-size:13.5px;line-height:1.4"><b>78%</b> do mercado já vai para multicloud · <b>92%</b> das grandes empresas operam assim<br>
+          <span style="color:var(--ink-3)">Forrester / HashiCorp 2024 · Flexera 2025 · Gartner</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="sf"><span>LISURA · SOLUÇÕES MULTICLOUD</span><span>FIAP · 4 / 8</span></div>
+  <div class="say">
+    <p>O enunciado pede prós e contras. Vamos aos dois, com dados.</p>
+    <p><strong>Dos oito prós clássicos de multicloud, um sobrevive neste negócio.</strong> Descorrelação de risco com o cliente não se aplica — nossos clientes são bancas, nossos usuários são candidatos em internet doméstica, ninguém compartilha nuvem conosco. Exigência regulatória não existe: não somos instituição financeira. Arbitragem de custo é inválida porque a carga é interativa, não lote. <strong>Sobra resiliência a falha de provedor — que é exatamente a linha do slide anterior.</strong></p>
+    <p>Do lado dos contras, a coluna que importa é <strong>o que o dinheiro resolve</strong>. Talento, custo e segurança, sim — a Forrester mostra que 64% das empresas não têm gente com expertise e só 8% são de alta maturidade, mas isso se contrata. <strong>Eficácia e failover não exercitado não se compram.</strong></p>
+    <p>E quero ser honesto com o dado que joga contra nós: <strong>78% do mercado vai para multicloud.</strong> O ônus da prova é nosso — por isso a defesa é específica deste negócio, e não uma opinião geral.</p>
+    <div class="beat"><b>MARCAÇÃO:</b> este slide sozinho cobre dois critérios de avaliação — prós e contras explícitos, e dado de instituto na tela.</div>
+  </div>
+</section>
+
+<!-- ─────────────────────────── 05 ─────────────────────────── -->
+<section class="slide">
+  <div class="sh"><span class="sn">05</span><h2>Mesmo dinheiro, proteção diferente</h2><span class="st">3:05 – 3:50 · 45s</span></div>
+  <div class="body">
+    <div class="cols" style="gap:16px">
+      <div class="card no">
+        <div class="lbl" style="color:var(--no);margin-bottom:7px">Segunda nuvem · warm standby</div>
+        <table class="t" style="font-size:13.5px"><tbody>
+          <tr><td>Landing zone e replicação entre nuvens</td><td class="n">380 mil</td></tr>
+          <tr><td>Capacidade de standby</td><td class="n">320 mil</td></tr>
+          <tr><td>Ferramental duplicado</td><td class="n">240 mil</td></tr>
+          <tr><td>2 engenheiros de plataforma</td><td class="n">720 mil</td></tr>
+          <tr><td><b>Total</b></td><td class="n"><b>R$ 1,66 mi</b></td></tr>
+        </tbody></table>
+        <div style="margin-top:8px;font-size:14px;color:var(--no)"><b>Cobre 1 das 7 causas.</b></div>
+      </div>
+      <div class="card ok">
+        <div class="lbl" style="color:var(--ok);margin-bottom:7px">Nuvem única endurecida</div>
+        <table class="t" style="font-size:13.5px"><tbody>
+          <tr><td>Células por porte de certame</td><td class="n">620 mil</td></tr>
+          <tr><td>Ensaio de carga contratualizado</td><td class="n">280 mil</td></tr>
+          <tr><td>Escalonamento pelo calendário do edital</td><td class="n">240 mil</td></tr>
+          <tr><td>Fila de espera + geração assíncrona</td><td class="n">320 mil</td></tr>
+          <tr><td>Publicação estática + restauração testada</td><td class="n">210 mil</td></tr>
+          <tr><td>Controle e backup fora da AWS</td><td class="n">162 mil</td></tr>
+          <tr><td><b>Total</b></td><td class="n"><b>R$ 1,69 mi</b></td></tr>
+        </tbody></table>
+        <div style="margin-top:8px;font-size:14px;color:var(--ok)"><b>Cobre as 7.</b></div>
+      </div>
+    </div>
+    <div class="verdict">R$ 1,66 milhão contra R$ 1,69 milhão. A diferença não é de preço — é do que o dinheiro compra.</div>
+  </div>
+  <div class="sf"><span>LISURA · SOLUÇÕES MULTICLOUD</span><span>FIAP · 5 / 8</span></div>
+  <div class="say">
+    <p>Aqui está a conta, e ela é o motivo pelo qual eu disse no slide 2 que isto não é economia.</p>
+    <p><strong>À esquerda, a segunda nuvem.</strong> R$ 1,66 milhão por ano, e note que <strong>quase metade é gente</strong> — dois engenheiros de plataforma a mais, num time que hoje tem seis.</p>
+    <p><strong>À direita, o mesmo dinheiro aplicado no que derruba o sistema.</strong> Células para isolar um certame grande dos outros. Ensaio de carga a 40 vezes, contratualizado, antes de cada certame grande. Escalonamento pelo calendário do edital, porque o autoescalonamento reativo chega tarde num pico que sobe em noventa segundos. Fila de espera, porque <strong>uma fila honesta preserva o certame e um erro intermitente gera ação judicial</strong>.</p>
+    <p><strong>R$ 1,66 contra R$ 1,69 milhão.</strong> Custam o mesmo. Um cobre uma causa; o outro cobre as sete.</p>
+    <div class="beat"><b>MARCAÇÃO:</b> aponte os dois totais lado a lado antes de falar. O impacto está em serem iguais.</div>
+  </div>
+</section>
+
+<!-- ─────────────────────────── 06 ─────────────────────────── -->
+<section class="slide">
+  <div class="sh"><span class="sn">06</span><h2>A ressalva — o que sai da AWS</h2><span class="st">3:50 – 4:20 · 30s</span></div>
+  <div class="body">
+    <div class="lead">Rejeitar multicloud como arquitetura não é aceitar ponto único em tudo.</div>
+    <table class="t"><thead><tr><th>O que sai do provedor primário</th><th>Por quê</th><th style="text-align:right">R$/ano</th></tr></thead><tbody>
+      <tr><td><b>DNS e WAF</b><br><span style="color:var(--ink-3);font-size:13px">provedor neutro</span></td>
+          <td>Se a nuvem cai e o DNS está dentro dela, <b>não dá nem para apontar para uma página de status</b></td><td class="n">60 mil</td></tr>
+      <tr><td><b>Página de status</b></td>
+          <td>Precisa <b>sobreviver à queda que está anunciando</b>. E é o canal formal para comunicar prorrogação</td><td class="n">12 mil</td></tr>
+      <tr><td><b>Backup off-site</b><br><span style="color:var(--ink-3);font-size:13px">segundo provedor, imutável</span></td>
+          <td>Backup no provedor que você quer sobreviver <b>não é backup — é cópia</b></td><td class="n">90 mil</td></tr>
+      <tr class="gd"><td colspan="2"><b>Total — 3% do EBITDA</b></td><td class="n"><b>R$ 162 mil</b></td></tr>
+    </tbody></table>
+    <div class="card ac"><div class="sub" style="font-size:16.5px;color:var(--ink)">
+      <b>Isto é multicloud?</b> Pelo critério estrito — mais de um provedor — <b>sim, parcialmente</b>.
+      E é por isso que a resposta honesta não é “não” puro: <b>não à arquitetura; sim ao controle e à última linha de defesa.</b></div></div>
+  </div>
+  <div class="sf"><span>LISURA · SOLUÇÕES MULTICLOUD</span><span>FIAP · 6 / 8</span></div>
+  <div class="say">
+    <p>Rejeitar multicloud como arquitetura não significa aceitar ponto único em tudo. Três coisas saem do provedor primário, e as três são baratas.</p>
+    <p><strong>DNS e WAF.</strong> Se a nuvem cai e o seu DNS está dentro dela, você não consegue nem redirecionar para uma página de status. <strong>Página de status</strong>, que precisa sobreviver exatamente à queda que está anunciando — e é por ela que se comunica formalmente uma prorrogação de prazo. E <strong>backup</strong>: backup no provedor que você está tentando sobreviver não é backup, é cópia.</p>
+    <p>Cento e sessenta e dois mil reais por ano. <strong>Três por cento do EBITDA.</strong></p>
+    <p>E quero ser preciso: <strong>pelo critério estrito do enunciado, isto é multicloud.</strong> Por isso a resposta não é “não” puro — é <strong>não à arquitetura, sim ao controle</strong>.</p>
+    <div class="beat"><b>MARCAÇÃO:</b> conceder que isto conta como multicloud é o que impede a banca de dizer “vocês fugiram da pergunta”.</div>
+  </div>
+</section>
+
+<!-- ─────────────────────────── 07 ─────────────────────────── -->
+<section class="slide">
+  <div class="sh"><span class="sn">07</span><h2>A arquitetura alvo</h2><span class="st">4:20 – 5:10 · 50s</span></div>
+  <div class="body" style="justify-content:stretch">
+    <img class="diag" src="{{DIAGRAMA}}" alt="Arquitetura alvo da Lisura">
+  </div>
+  <div class="sf"><span>LISURA · SOLUÇÕES MULTICLOUD</span><span>FIAP · 7 / 8</span></div>
+  <div class="say">
+    <p>O princípio que organiza tudo: <strong>o calendário do edital é dado de entrada da infraestrutura.</strong></p>
+    <p><em>Em roxo, fora da AWS:</em> Cloudflare com DNS, WAF e fila de espera; e embaixo, backup off-site e página de status.</p>
+    <p><em>Em verde, e é a decisão mais importante do desenho:</em> <strong>gabarito, cartão de confirmação e resultado são publicados como arquivos estáticos em S3 e CloudFront.</strong> Os três maiores picos são leitura de dado que não muda. <strong>Se todo o backend cair no dia do resultado, o resultado continua no ar.</strong></p>
+    <p><em>Em azul, as células:</em> cada uma é uma instalação completa, com EKS e Aurora próprios. E uma <strong>célula dedicada</strong>, alocada por evento para certames acima de 100 mil candidatos — que é isolamento vendável, vira cláusula de contrato.</p>
+    <p>O <strong>serviço de agenda</strong> lê o cronograma do edital e provisiona seis horas antes do pico. E o <strong>modo degradado</strong> tem cinco níveis: no nível 4 o sistema serve só estático — e continua servindo.</p>
+    <div class="beat"><b>MARCAÇÃO:</b> aponte, não leia. Se o tempo apertar, diga só roxo–verde–azul e vá para o fecho.</div>
+  </div>
+</section>
+
+<!-- ─────────────────────────── 08 ─────────────────────────── -->
+<section class="slide">
+  <div class="sh"><span class="sn">08</span><h2>Fecho</h2><span class="st">5:10 – 5:30 · 20s</span></div>
+  <div class="body">
+    <div class="lead">Dois cenários em que estaríamos errados.</div>
+    <div class="trig"><span class="tn">2</span><span><b>Se a prova online entrar em escala</b> — Lei 14.965/2024, vigência em 2028. Uma prova <i>em andamento</i> não se prorroga. <b>A falha deixa de ter remédio, e a resposta certa passa a ser a oposta desta.</b></span></div>
+    <div class="trig"><span class="tn">5</span><span><b>Se a AWS abrir uma segunda região no Brasil</b> — o DR barateia tanto que a conta muda.</span></div>
+    <div class="verdict">Multicloud não é uma virtude. É a resposta a uma falha específica.<br>
+      <span style="font-size:17px;font-weight:600">A nossa não é a falha que multicloud resolve.</span></div>
+  </div>
+  <div class="sf"><span>LISURA · SOLUÇÕES MULTICLOUD</span><span>FIAP · 8 / 8</span></div>
+  <div class="say">
+    <p>Fecho com os dois cenários em que estaríamos errados — e o primeiro é o mais importante do trabalho inteiro.</p>
+    <p><strong>Se a prova passar a ser aplicada online em escala</strong>, e a Lei 14.965 de 2024 autoriza isso a partir de 2028, <strong>a falha deixa de ser reversível</strong>. Não se prorroga uma prova em andamento. Todo o argumento do slide 3 cai, e a resposta correta passa a ser a oposta desta.</p>
+    <p>E se a AWS abrir uma segunda região no Brasil, o DR fica barato o suficiente para a conta mudar.</p>
+    <p><strong>Multicloud não é uma virtude — é a resposta a uma falha específica. A nossa não é a falha que multicloud resolve.</strong></p>
+    <div class="beat"><b>MARCAÇÃO:</b> assumir a condição de validade da própria decisão vale mais que defendê-la como absoluta. O gatilho 2 mostra que a análise é do problema, não da conveniência.</div>
+  </div>
+</section>
+
+</body></html>

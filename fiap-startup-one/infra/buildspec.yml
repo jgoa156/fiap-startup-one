@@ -1,0 +1,19 @@
+# CodeBuild: constrói as três imagens e envia ao ECR. A fonte é um zip de fiap-startup-one enviado
+# ao S3 por infra/scripts/publicar-imagens.ps1. Variáveis vindas do projeto (Terraform):
+# REGISTRO (conta.dkr.ecr.regiao.amazonaws.com), REPO_GO, REPO_WEB, REPO_K6; e da execução: TAG.
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - aws ecr get-login-password --region "$AWS_DEFAULT_REGION" | docker login --username AWS --password-stdin "$REGISTRO"
+  build:
+    commands:
+      - docker build -f infra/imagens/go.Dockerfile -t "$REPO_GO:$TAG" poc
+      - docker build -f infra/imagens/web.Dockerfile -t "$REPO_WEB:$TAG" poc-web
+      - docker build -f infra/imagens/k6.Dockerfile -t "$REPO_K6:$TAG" carga
+  post_build:
+    commands:
+      - docker push "$REPO_GO:$TAG"
+      - docker push "$REPO_WEB:$TAG"
+      - docker push "$REPO_K6:$TAG"

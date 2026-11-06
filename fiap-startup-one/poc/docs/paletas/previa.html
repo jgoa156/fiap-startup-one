@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lisura — prévia de paleta sobre o layout do Inclusa</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap">
+<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/dayjs@1.11.13/dayjs.min.js"></script>
+<script src="https://unpkg.com/antd@5.21.6/dist/antd.min.js"></script>
+<script src="https://unpkg.com/@ant-design/icons@5.5.1/dist/index.umd.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.25.6/babel.min.js"></script>
+<style>
+  /* Moldura e forma idênticas ao protótipo do Inclusa (mockups/antd-heroui-sidenav); só as cores mudam. */
+  :root {
+    --hero-shadow-sm: 0 0 5px 0 rgb(0 0 0 / .02), 0 2px 10px 0 rgb(0 0 0 / .06), 0 0 1px 0 rgb(0 0 0 / .3);
+    --hero-shadow-md: 0 0 15px 0 rgb(0 0 0 / .03), 0 2px 30px 0 rgb(0 0 0 / .08), 0 0 1px 0 rgb(0 0 0 / .3);
+    --hero-shadow-lg: 0 0 30px 0 rgb(0 0 0 / .04), 0 30px 60px 0 rgb(0 0 0 / .12), 0 0 1px 0 rgb(0 0 0 / .3);
+    --hero-radius-sm: 8px; --hero-radius-md: 12px; --hero-radius-lg: 14px;
+    --tinta: #14233A; --tinta-2: #516178; --divisor: #E6EBF2; --fundo: #F4F5F8;
+  }
+  html, body, #root { height: 100%; margin: 0; }
+  body { background: var(--fundo); font-family: Nunito, system-ui, sans-serif; }
+  .sider.ant-layout-sider { margin: 12px 0 12px 12px; height: calc(100vh - 24px); position: sticky; top: 12px;
+    background: #fff !important; border-radius: var(--hero-radius-lg); box-shadow: var(--hero-shadow-md); }
+  .sider .ant-layout-sider-children { display: flex; flex-direction: column; }
+  .brand { display: flex; align-items: center; justify-content: space-between; height: 64px; padding: 0 16px 0 20px; }
+  .brand-name { font-size: 21px; font-weight: 800; color: var(--p700); display: flex; gap: 10px; align-items: center; }
+  .sider .ant-menu { border-inline-end: 0 !important; flex: 1; overflow-y: auto; overflow-x: visible; }
+  .sider .ant-menu-item-group-title { font-size: 12px; font-weight: 700; letter-spacing: .4px; color: var(--tinta-2);
+    text-transform: uppercase; padding: 16px 16px 6px; }
+  .sider .ant-menu-item { position: relative; overflow: visible !important; }
+  .sider .ant-menu-item-selected::before { content: ""; position: absolute; left: -12px; top: 6px; bottom: 6px; width: 4px;
+    border-radius: 0 4px 4px 0; background: var(--marcador); }
+  .perfil { margin: 12px; padding: 12px; border-radius: var(--hero-radius-md); background: var(--p50); }
+  .topo { margin: 12px 12px 0; height: 64px; padding: 0 20px; display: flex; align-items: center; gap: 12px;
+    background: #fff; border-radius: var(--hero-radius-lg); box-shadow: var(--hero-shadow-sm); }
+  .conteudo { padding: 16px 12px 24px; }
+  .ant-card { box-shadow: var(--hero-shadow-sm); border: 0 !important; }
+  .acao-urgente { border-left: 6px solid var(--marcador) !important; background: var(--m50) !important; }
+  .acao-urgente .ant-card-body { padding: 18px 20px; }
+  .rotulo { font-size: 12px; font-weight: 700; letter-spacing: .4px; color: var(--tinta-2); text-transform: uppercase; margin: 8px 4px 10px; }
+  .selo-aviso { background: var(--m50) !important; color: var(--m800) !important; border-color: var(--marcador) !important; }
+  .faixa-paleta { display: flex; gap: 6px; align-items: center; font-size: 12px; color: var(--tinta-2); }
+  .faixa-paleta span { width: 22px; height: 22px; border-radius: 6px; display: inline-block; box-shadow: 0 0 0 1px rgb(0 0 0 / .08); }
+  /* Passos como no Inclusa: concluído em azul (aqui, a cor de ação) com ✓, linha de progresso na cor de marcador. */
+  .ant-steps-item-finish .ant-steps-item-icon { background: var(--p700) !important; border-color: var(--p700) !important; }
+  .ant-steps-item-finish .ant-steps-item-icon .ant-steps-icon { color: #fff !important; }
+  .ant-steps-item-finish > .ant-steps-item-container > .ant-steps-item-content > .ant-steps-item-title::after {
+    background: var(--marcador) !important; height: 3px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" data-presets="react">
+const { ConfigProvider, Layout, Menu, Button, Tooltip, Avatar, Card, Row, Col, Statistic, Input, Badge, Typography,
+        Steps, Tag, Segmented, Space } = antd;
+const I = icons;
+const { Sider, Content } = Layout;
+
+// As três propostas. Contrastes conferidos (ver README desta pasta).
+const PALETAS = {
+  1: { nome: 'Petróleo', p50: '#F0F9F8', p100: '#E0F2F0', p500: '#2A9D8F', p600: '#1C7F74', p700: '#12665D', p800: '#0D4F48',
+       marcador: '#F4A300', m50: '#FFF6DD', m800: '#7A5200', sucesso: '#2E7D32' },
+  2: { nome: 'Índigo', p50: '#F5F5FE', p100: '#E8E8FC', p500: '#6366F1', p600: '#4F46E5', p700: '#3F37C9', p800: '#2F2A96',
+       marcador: '#FF8A5B', m50: '#FFF0EA', m800: '#8A3414', sucesso: '#1E7B4F' },
+  3: { nome: 'Ameixa', p50: '#FAF5FB', p100: '#F3E8F6', p500: '#9B59B6', p600: '#7E3F99', p700: '#6A2F84', p800: '#521F68',
+       marcador: '#F2C14E', m50: '#FFF7DE', m800: '#6E5200', sucesso: '#1E7B4F' },
+  4: { nome: 'Bordô', p50: '#FCF4F7', p100: '#F8E6EC', p500: '#C2456B', p600: '#A6274F', p700: '#8A1E3F', p800: '#6B1530',
+       marcador: '#D9A520', m50: '#FFF7E0', m800: '#6E5000', sucesso: '#1E7B4F' },
+  5: { nome: 'Grafite', p50: '#F5F7FA', p100: '#E9EDF2', p500: '#6B7A90', p600: '#445166', p700: '#2F3B4C', p800: '#1F2833',
+       marcador: '#FF7A1A', m50: '#FFF1E6', m800: '#8A3B00', sucesso: '#1E7B4F' },
+  6: { nome: 'Floresta', p50: '#F2FAF5', p100: '#E3F3EA', p500: '#3FA56E', p600: '#2A8556', p700: '#1F6B43', p800: '#164F32',
+       marcador: '#38BDF8', m50: '#E8F7FE', m800: '#075985', sucesso: '#0F766E' },
+  7: { nome: 'Framboesa', p50: '#FDF4F8', p100: '#FBE7F0', p500: '#D9488B', p600: '#BC2A6E', p700: '#A11D5B', p800: '#7D1446',
+       marcador: '#FACC15', m50: '#FEF9DB', m800: '#6B5300', sucesso: '#1E7B4F' },
+  8: { nome: 'Terracota', p50: '#FDF6F2', p100: '#FBEBE3', p500: '#D2693A', p600: '#B5481A', p700: '#9A3B12', p800: '#7A2E0E',
+       marcador: '#2EC4B6', m50: '#E6F8F6', m800: '#0F5E57', sucesso: '#1E7B4F' },
+};
+const id = new URLSearchParams(location.search).get('p') || '1';
+const P = PALETAS[id];
+for (const [k, v] of Object.entries(P)) document.documentElement.style.setProperty('--' + k, v);
+
+const tema = {
+  token: {
+    colorPrimary: P.p700, colorLink: P.p700, colorSuccess: P.sucesso, colorWarning: '#B45309', colorError: '#B42318',
+    colorText: '#14233A', colorTextSecondary: '#516178', colorBorderSecondary: '#E6EBF2', colorBgLayout: '#F4F5F8',
+    fontFamily: 'Nunito, system-ui, sans-serif', fontSize: 14,
+    borderRadius: 12, borderRadiusLG: 14, borderRadiusSM: 8, controlHeight: 44,
+    boxShadow: 'var(--hero-shadow-md)', boxShadowSecondary: 'var(--hero-shadow-lg)', boxShadowTertiary: 'var(--hero-shadow-sm)',
+  },
+  components: {
+    Menu: { itemHeight: 44, itemBorderRadius: 12, itemMarginInline: 12, itemSelectedBg: P.p100, itemSelectedColor: P.p700,
+            itemHoverBg: P.p50, itemColor: '#516178', iconSize: 18, collapsedIconSize: 18, collapsedWidth: 72 },
+    Button: { borderRadius: 999, fontWeight: 700 },
+    Input: { borderRadius: 999 },
+    Card: { borderRadiusLG: 14 },
+    Segmented: { itemSelectedBg: '#FFFFFF', trackBg: P.p100, itemSelectedColor: P.p700 },
+    Tag: { defaultBg: P.p100, defaultColor: P.p700 },
+  },
+};
+
+const menu = [
+  { type: 'group', label: 'Área do candidato', children: [
+    { key: 'inicio', label: 'Início', icon: <I.HomeOutlined /> },
+    { key: 'certames', label: 'Certames abertos', icon: <I.FileSearchOutlined /> },
+    { key: 'inscricoes', label: 'Minhas inscrições', icon: <I.SolutionOutlined /> },
+  ]},
+  { type: 'group', label: 'Documentos e pagamentos', children: [
+    { key: 'docs', label: 'Meus documentos', icon: <I.FolderOpenOutlined /> },
+    { key: 'pag', label: 'Pagamentos', icon: <I.WalletOutlined /> },
+  ]},
+  { type: 'group', label: 'Conta', children: [
+    { key: 'conta', label: 'Minha conta', icon: <I.UserOutlined /> },
+  ]},
+];
+
+function App() {
+  const [chips, setChips] = React.useState(['pcd']);
+  const alterna = c => setChips(chips.includes(c) ? chips.filter(x => x !== c) : [...chips, c]);
+  return (
+    <ConfigProvider theme={tema}>
+      <Layout style={{ minHeight: '100vh', background: 'transparent' }}>
+        <Sider className="sider" width={248} collapsedWidth={72} trigger={null}>
+          <div className="brand">
+            <span className="brand-name"><I.SafetyCertificateFilled style={{ color: P.marcador, fontSize: 24 }} /> Lisura</span>
+            <Button type="text" shape="circle" aria-label="Recolher menu" icon={<I.MenuOutlined style={{ color: '#516178' }} />} />
+          </div>
+          <Menu mode="inline" selectedKeys={['inicio']} items={menu} />
+          <div className="perfil">
+            <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+              <Avatar style={{ background: '#fff', color: P.p700, fontWeight: 700, boxShadow: 'var(--hero-shadow-sm)' }}>MS</Avatar>
+              <div>
+                <div style={{ fontWeight: 700 }}>Maria Sintética</div>
+                <div style={{ fontSize: 12, color: '#516178' }}>Candidata · CPF 529.982.247-25</div>
+              </div>
+            </div>
+          </div>
+        </Sider>
+
+        <Layout style={{ background: 'transparent', minWidth: 0 }}>
+          <div className="topo">
+            <Typography.Text strong style={{ flex: 1 }}>Início</Typography.Text>
+            <div className="faixa-paleta">
+              Opção {id} · {P.nome}
+              <span style={{ background: P.p700 }} /><span style={{ background: P.p500 }} />
+              <span style={{ background: P.p100 }} /><span style={{ background: P.marcador }} />
+            </div>
+            <Input prefix={<I.SearchOutlined />} placeholder="Buscar certame…" suffix={<span style={{ color: '#516178' }}>Ctrl+K</span>}
+                   style={{ maxWidth: 280, height: 40 }} />
+            <Tooltip title="Ajuda desta tela"><Button shape="circle" icon={<I.QuestionOutlined />} aria-label="Ajuda desta tela" /></Tooltip>
+            <Badge count={2}><Button shape="circle" icon={<I.BellOutlined />} aria-label="Notificações, 2 novas" /></Badge>
+          </div>
+
+          <Content className="conteudo">
+            <Typography.Title level={2} style={{ color: P.p800, margin: '8px 4px 2px' }}>Boa tarde, Maria</Typography.Title>
+            <Typography.Text type="secondary" style={{ margin: '0 4px 16px', display: 'block' }}>
+              Quinta, 30 de outubro de 2026 · 2 inscrições ativas</Typography.Text>
+
+            <div className="rotulo">Ações de hoje</div>
+            <Row gutter={[16, 16]}>
+              <Col xs={24} lg={14}>
+                <Card className="acao-urgente">
+                  <div style={{ display: 'flex', gap: 16, alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+                    <div>
+                      <div style={{ fontWeight: 800, fontSize: 17, color: P.m800 }}><I.ClockCircleOutlined /> Pague a taxa até 30/11, 23h59</div>
+                      <div style={{ color: '#516178' }}>PSS 2027 — Prefeitura de Exemplo · Enfermeiro · R$ 120,00</div>
+                    </div>
+                    <Button type="primary" icon={<I.QrcodeOutlined />}>Pagar com Pix</Button>
+                  </div>
+                </Card>
+              </Col>
+              <Col xs={24} lg={10}>
+                <Card>
+                  <div style={{ fontWeight: 800, fontSize: 17 }}><I.FileDoneOutlined style={{ color: P.p600 }} /> Cartão de confirmação liberado</div>
+                  <div style={{ color: '#516178', marginBottom: 10 }}>Concurso UF 2026 · prova em 14/12, Campinas</div>
+                  <Button>Ver local de prova</Button>
+                </Card>
+              </Col>
+            </Row>
+
+            <div className="rotulo" style={{ marginTop: 20 }}>Minha inscrição no PSS 2027</div>
+            <Card>
+              <div style={{ display: 'flex', gap: 8, marginBottom: 18, flexWrap: 'wrap' }}>
+                <Tag className="selo-aviso" icon={<I.ClockCircleOutlined />}>Aguardando pagamento</Tag>
+                <Tag icon={<I.CheckOutlined />}>Reserva PcD</Tag>
+                <Tag icon={<I.FileProtectOutlined />}>Laudo compartilhado só com esta banca</Tag>
+              </div>
+              <Steps current={1} items={[
+                { title: 'Rascunho', description: 'concluído' },
+                { title: 'Enviada', description: 'agora' },
+                { title: 'Paga' }, { title: 'Em análise' }, { title: 'Homologada' },
+              ]} />
+            </Card>
+
+            <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
+              <Col xs={24} lg={12}>
+                <Card title="Como pagar">
+                  <Segmented block options={[
+                    { label: <span><I.QrcodeOutlined /> Pix · na hora</span>, value: 'pix' },
+                    { label: <span><I.BarcodeOutlined /> Boleto · até 3 dias</span>, value: 'boleto' },
+                  ]} defaultValue="pix" />
+                </Card>
+              </Col>
+              <Col xs={24} lg={12}>
+                <Card title={<span>Reserva de vagas <Tag className="selo-aviso" style={{ marginLeft: 8 }}>{chips.length} selecionada{chips.length === 1 ? '' : 's'}</Tag></span>}>
+                  <Space wrap>
+                    {[['pcd', 'Pessoa com deficiência'], ['ppiq', 'Pretos, pardos, indígenas e quilombolas']].map(([k, r]) => (
+                      <Tag.CheckableTag key={k} checked={chips.includes(k)} onChange={() => alterna(k)}
+                        style={{ borderRadius: 999, padding: '8px 14px', fontSize: 14, border: `1px solid ${chips.includes(k) ? P.p700 : '#E6EBF2'}` }}>
+                        {chips.includes(k) && <I.CheckOutlined />} {r}
+                      </Tag.CheckableTag>
+                    ))}
+                  </Space>
+                </Card>
+              </Col>
+            </Row>
+          </Content>
+        </Layout>
+      </Layout>
+    </ConfigProvider>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

@@ -1,0 +1,110 @@
+.entrar {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  background: var(--surface);
+}
+
+/* Painel da marca: o único lugar com a cor da marca em área grande (regra do Inclusa). */
+.entrar-marca {
+  position: relative;
+  overflow: hidden;
+  background: var(--brand-800);
+  color: #fff;
+  padding: 56px 56px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+.entrar-marca::before,
+.entrar-marca::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  background: var(--brand-700);
+}
+.entrar-marca::before {
+  width: 360px;
+  height: 360px;
+  right: -140px;
+  top: -120px;
+}
+.entrar-marca::after {
+  width: 420px;
+  height: 420px;
+  left: -180px;
+  bottom: -200px;
+}
+.entrar-marca > * {
+  position: relative;
+  z-index: 1;
+}
+.entrar-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 32px;
+  font-weight: 800;
+}
+.entrar-marca h1 {
+  font-size: 34px;
+  line-height: 1.2;
+  margin: 24px 0 0;
+  font-weight: 800;
+}
+.entrar-marca h1 span {
+  color: var(--marker-400);
+}
+.entrar-marca p {
+  font-size: 17px;
+  line-height: 1.6;
+  margin: 0;
+  max-width: 440px;
+  color: #dfe5ec;
+}
+.entrar-selos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.entrar-selos span {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.1);
+  font-weight: 700;
+}
+
+.entrar-form {
+  display: grid;
+  place-items: center;
+  padding: 40px 24px;
+}
+.entrar-caixa {
+  width: 100%;
+  max-width: 440px;
+}
+
+@media (max-width: 991px) {
+  .entrar {
+    grid-template-columns: 1fr;
+  }
+  .entrar-marca {
+    padding: 28px 20px;
+    gap: 14px;
+  }
+  .entrar-marca h1 {
+    font-size: 24px;
+    margin-top: 4px;
+  }
+  .entrar-marca p,
+  .entrar-selos {
+    display: none;
+  }
+  .entrar-form {
+    place-items: start center;
+    padding: 24px 16px;
+  }
+}

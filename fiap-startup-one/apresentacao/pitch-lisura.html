@@ -1,0 +1,268 @@
+<!doctype html><html lang="pt-BR" data-theme="light"><head><meta charset="utf-8">
+<title>Lisura — pitch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --surface:#FFFFFF; --surface-2:#F5F7F8;
+  --ink:#0F1A1F; --ink-2:#4A5D66; --ink-3:#7A8C95;
+  --rule:#D5DDE1; --rule-2:#B3C1C8;
+  --accent:#15505F; --accent-soft:#DBE9ED; --accent-ink:#0C3743;
+  --ok:#186049; --ok-soft:#D6E9E1;
+  --no:#93302F; --no-soft:#F3DDDC;
+  --amber:#875607; --amber-soft:#F6E7CC;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:#fff}
+body{font-family:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;color:var(--ink);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+h1,h2{margin:0;text-wrap:balance} p{margin:0}
+table{border-collapse:collapse;width:100%}
+.slide{width:1280px;height:720px;overflow:hidden;background:var(--surface);
+  display:flex;flex-direction:column;padding:38px 52px 26px;break-after:page;page-break-after:always}
+.slide:last-of-type{break-after:auto;page-break-after:auto}
+.sh{display:flex;align-items:baseline;gap:16px;border-bottom:2px solid var(--rule);padding-bottom:12px;margin-bottom:20px}
+.sn{font-family:"IBM Plex Mono",monospace;font-size:15px;font-weight:600;letter-spacing:.1em;color:var(--accent)}
+.sh h2{font-family:"IBM Plex Serif",serif;font-size:31px;font-weight:700;line-height:1.14;flex:1}
+.body{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;gap:15px}
+.sf{margin-top:12px;padding-top:8px;border-top:1px solid var(--rule);display:flex;justify-content:space-between;
+    font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--ink-3);letter-spacing:.04em}
+.lead{font-family:"IBM Plex Serif",serif;font-size:30px;font-weight:600;line-height:1.22}
+.sub{font-size:18.5px;color:var(--ink-2);line-height:1.45}
+.lbl{font-family:"IBM Plex Mono",monospace;font-size:11.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.cols3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.card{border:1.5px solid var(--rule);border-radius:6px;padding:16px 19px;background:var(--surface-2)}
+.card.ok{border-color:var(--ok);background:var(--ok-soft)}
+.card.no{border-color:var(--no);background:var(--no-soft)}
+.card.ac{border-color:var(--accent);background:var(--accent-soft)}
+.card.am{border-color:var(--amber);background:var(--amber-soft)}
+.stat{display:flex;border:1.5px solid var(--rule);border-radius:6px;overflow:hidden}
+.stat>div{flex:1;padding:16px 14px;text-align:center;border-right:1px solid var(--rule)}
+.stat>div:last-child{border-right:0}
+.stat .n{font-family:"IBM Plex Serif",serif;font-size:38px;font-weight:700;line-height:1;color:var(--accent)}
+.stat .k{font-size:14px;color:var(--ink-2);margin-top:7px;line-height:1.3}
+table.t{font-size:17px}
+table.t th{text-align:left;font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--ink-3);border-bottom:1.5px solid var(--rule-2);padding:7px 10px}
+table.t td{border-bottom:1px solid var(--rule);padding:10px;vertical-align:top}
+table.t tr.hi td{background:var(--ok-soft)}
+table.t tr.lo td{background:var(--no-soft)}
+table.t td.n{text-align:right;font-family:"IBM Plex Mono",monospace;white-space:nowrap}
+.verdict{border:2px solid var(--accent);background:var(--accent-soft);border-radius:6px;padding:16px 20px;
+  text-align:center;font-family:"IBM Plex Serif",serif;font-size:24px;font-weight:700;color:var(--accent-ink);line-height:1.3}
+.cap{display:flex;flex-direction:column;justify-content:center;height:100%;gap:22px}
+.cap h1{font-family:"IBM Plex Serif",serif;font-size:76px;font-weight:700;line-height:1;letter-spacing:-.02em}
+.peaks{display:grid;grid-template-columns:repeat(5,1fr);gap:9px}
+.pk{border:1.5px solid var(--rule);border-radius:5px;padding:11px 9px;text-align:center;background:var(--surface-2)}
+.pk.big{border-color:var(--no);background:var(--no-soft);border-width:2px}
+.pk .pn{font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:600;color:var(--ink-3)}
+.pk .pt{font-size:15px;font-weight:600;margin-top:5px;line-height:1.2}
+.pk .pw{font-size:12.5px;color:var(--ink-2);margin-top:5px;line-height:1.25}
+@page{size:1280px 720px;margin:0}
+</style></head><body>
+
+<!-- 01 capa -->
+<section class="slide">
+  <div class="cap">
+    <div>
+      <div class="lbl" style="color:var(--accent);margin-bottom:14px">Plataforma de processos seletivos públicos</div>
+      <h1>Lisura</h1>
+    </div>
+    <div class="lead" style="max-width:26ch">O sistema de inscrição que não cai no último dia do prazo.</div>
+    <div class="sub" style="max-width:62ch">Do edital à homologação do resultado. Vendido para as bancas organizadoras que conduzem concursos, vestibulares e processos seletivos no Brasil.</div>
+    <div class="stat" style="margin-top:8px">
+      <div><div class="n">R$ 27 mi</div><div class="k">ARR projetado<br>no ano 5</div></div>
+      <div><div class="n">2028</div><div class="k">prazo legal que obriga<br>o mercado a se replataformar</div></div>
+      <div><div class="n">R$ 10 mi</div><div class="k">rodada Seed<br>que estamos levantando</div></div>
+    </div>
+  </div>
+  <div class="sf"><span>LISURA · PITCH</span><span>1 / 10</span></div>
+</section>
+
+<!-- 02 problema -->
+<section class="slide">
+  <div class="sh"><span class="sn">01</span><h2>O problema é uma manchete anual</h2></div>
+  <div class="body">
+    <div class="lead">“Site do concurso fora do ar no último dia de inscrição.”</div>
+    <div class="sub">Todo ano, em algum certame. E quando acontece, chega ao Judiciário: há registro de <b>prazo de inscrição estendido por decisão judicial</b> porque o site esteve indisponível.</div>
+    <div class="cols">
+      <div class="card no">
+        <div class="lbl" style="color:var(--no);margin-bottom:7px">Quem paga a conta</div>
+        <div style="font-size:17px;line-height:1.5">
+        <b>O candidato</b> — que estudou um ano e não consegue se inscrever.<br>
+        <b>A banca</b> — que perde reputação e pode perder o contrato.<br>
+        <b>O órgão</b> — que vira notícia e responde na Justiça.</div>
+      </div>
+      <div class="card">
+        <div class="lbl" style="margin-bottom:7px">Por que acontece</div>
+        <div style="font-size:17px;line-height:1.5">
+        Porque a carga de um certame é <b>o oposto de tudo que software normal enfrenta</b>: o ano inteiro cabe em poucas horas — e ninguém dimensiona para o dia que acontece uma vez.</div>
+      </div>
+    </div>
+  </div>
+  <div class="sf"><span>LISURA · PITCH</span><span>2 / 10</span></div>
+</section>
+
+<!-- 03 carga -->
+<section class="slide">
+  <div class="sh"><span class="sn">02</span><h2>Um certame tem cinco picos, não um</h2></div>
+  <div class="body">
+    <div class="peaks">
+      <div class="pk"><div class="pn">PICO 1</div><div class="pt">Isenção</div><div class="pw">quem pede isenção</div></div>
+      <div class="pk"><div class="pn">PICO 2</div><div class="pt">Inscrição</div><div class="pw">quem ainda não se inscreveu · escrita pesada</div></div>
+      <div class="pk big"><div class="pn">PICO 3</div><div class="pt">Cartão de confirmação</div><div class="pw"><b>a base inteira</b></div></div>
+      <div class="pk big"><div class="pn">PICO 4</div><div class="pt">Gabarito e recurso</div><div class="pw"><b>a base inteira</b></div></div>
+      <div class="pk big"><div class="pn">PICO 5</div><div class="pt">Resultado</div><div class="pw"><b>a base inteira · o maior</b></div></div>
+    </div>
+    <div class="card am">
+      <div style="font-size:19px;line-height:1.45"><b>O que quase todo fornecedor dimensiona errado:</b> no pico de inscrição só acessa quem ainda não se inscreveu. <b>Nos picos 3, 4 e 5 acessa todo mundo, ao mesmo tempo.</b></div>
+    </div>
+    <div class="verdict">A carga é <b>40× a média</b> — e a data está publicada no edital, com meses de antecedência.</div>
+  </div>
+  <div class="sf"><span>LISURA · PITCH</span><span>3 / 10</span></div>
+</section>
+
+<!-- 04 por que agora -->
+<section class="slide">
+  <div class="sh"><span class="sn">03</span><h2>Por que agora: a lei muda tudo até 2028</h2></div>
+  <div class="body">
+    <div class="card ac">
+      <div class="lbl" style="color:var(--accent);margin-bottom:8px">Lei nº 14.965, de 9 de setembro de 2024 — Lei Geral dos Concursos Públicos</div>
+      <div style="font-size:19px;line-height:1.5">
+      Autoriza <b>prova total ou parcialmente a distância</b> · endurece as regras de escolha e conduta da banca ·
+      <b>entra em vigor em 1º de janeiro de 2028</b>, com aplicação antecipada permitida se o edital previr.</div>
+    </div>
+    <div class="cols">
+      <div class="card ok"><div class="lbl" style="color:var(--ok);margin-bottom:7px">O que isso significa</div>
+        <div style="font-size:17.5px;line-height:1.5"><b>Todo o mercado precisa se replataformar até 2028.</b> Sistemas construídos para a lei antiga não atendem à nova, e quem quiser antecipar precisa de plataforma pronta já.</div></div>
+      <div class="card"><div class="lbl" style="margin-bottom:7px">A janela</div>
+        <div style="font-size:17.5px;line-height:1.5">Uma troca de fornecedor obrigatória, com data marcada, num mercado onde ninguém troca sem motivo. <b>É o melhor momento possível para entrar.</b></div></div>
+    </div>
+  </div>
+  <div class="sf"><span>LISURA · PITCH</span><span>4 / 10</span></div>
+</section>
+
+<!-- 05 produto -->
+<section class="slide">
+  <div class="sh"><span class="sn">04</span><h2>O produto: o certame inteiro, não o formulário</h2></div>
+  <div class="body">
+    <table class="t"><tbody>
+      <tr><td><b>1 · Configuração</b> — edital estruturado, cotas, cronograma, retificação versionada</td><td><b>5 · Homologação</b> — análise de laudo, recurso de indeferimento</td></tr>
+      <tr><td><b>2 · Publicação</b> — a partir daqui tudo é público e auditável</td><td><b>6 · Ensalamento</b> — candidato → cidade → local → sala</td></tr>
+      <tr><td><b>3 · Isenção</b> — triagem por regra transforma uma semana de análise em um dia</td><td><b>7 · Gabarito e recurso</b> — agrupamento por fundamento: <b>16 textos em vez de 500</b></td></tr>
+      <tr><td><b>4 · Inscrição</b> — conta única do candidato, reaproveitada entre bancas</td><td><b>8 · Resultado</b> — recálculo versionado após anulação de questão</td></tr>
+    </tbody></table>
+    <div class="cols">
+      <div class="card ok"><div class="lbl" style="color:var(--ok);margin-bottom:6px">O que nos diferencia</div>
+        <div style="font-size:17px;line-height:1.5"><b>Ensaio de carga contratualizado</b> — 40× provado, com relatório assinado, antes de cada certame grande. <b>Nenhum concorrente anuncia isso.</b></div></div>
+      <div class="card ac"><div class="lbl" style="color:var(--accent);margin-bottom:6px">O fosso</div>
+        <div style="font-size:17px;line-height:1.5"><b>Conta única do candidato</b>, viva entre bancas. Quanto mais bancas usam, mais valiosa a conta — e mais atraente para a próxima banca.</div></div>
+    </div>
+  </div>
+  <div class="sf"><span>LISURA · PITCH</span><span>5 / 10</span></div>
+</section>
+
+<!-- 06 modelo -->
+<section class="slide">
+  <div class="sh"><span class="sn">05</span><h2>Como ganhamos dinheiro</h2></div>
+  <div class="body">
+    <div class="cols">
+      <div class="card"><div class="lbl" style="margin-bottom:8px">Assinatura anual</div>
+        <div style="font-family:'IBM Plex Serif',serif;font-size:32px;font-weight:700;color:var(--accent)">R$ 48–84 mil</div>
+        <div class="sub" style="font-size:16px;margin-top:6px">Cobre a operação de base. Previsível.</div></div>
+      <div class="card ok"><div class="lbl" style="color:var(--ok);margin-bottom:8px">Valor por inscrição processada — <b>é o negócio</b></div>
+        <div style="font-family:'IBM Plex Serif',serif;font-size:32px;font-weight:700;color:var(--ok)">R$ 3,00</div>
+        <div class="sub" style="font-size:16px;margin-top:6px">~3,75% de uma taxa média de R$ 80 paga pelo candidato.</div></div>
+    </div>
+    <table class="t"><tbody>
+      <tr class="hi"><td><b>Alinha com o cliente sem negociação</b></td><td>A banca também cobra por candidato — no modelo “custo zero”, ela assume os custos e fica com a arrecadação das taxas</td></tr>
+      <tr><td><b>Receita e custo pulsam juntos</b></td><td>Ganhamos exatamente nos dias em que a infraestrutura custa mais</td></tr>
+      <tr><td><b>Não processamos o pagamento</b></td><td>Taxa de inscrição é receita pública. Orquestramos a cobrança no provedor da banca — e removemos uma camada inteira de exigência regulatória</td></tr>
+    </tbody></table>
+    <div class="verdict">ACV de <b>R$ 280 mil</b> no ano 3 · retorno de CAC em <b>3,7 meses</b> · LTV/CAC <b>~15×</b></div>
+  </div>
+  <div class="sf"><span>LISURA · PITCH</span><span>6 / 10</span></div>
+</section>
+
+<!-- 07 mercado -->
+<section class="slide">
+  <div class="sh"><span class="sn">06</span><h2>O mercado — e o que ele não é</h2></div>
+  <div class="body">
+    <div class="cols3">
+      <div class="card"><div class="lbl" style="margin-bottom:7px">TAM</div>
+        <div style="font-family:'IBM Plex Serif',serif;font-size:34px;font-weight:700;color:var(--accent)">R$ 90 mi</div>
+        <div class="sub" style="font-size:15px;margin-top:5px">~30 mi de inscrições pagas por ano × R$ 3</div></div>
+      <div class="card"><div class="lbl" style="margin-bottom:7px">SAM</div>
+        <div style="font-family:'IBM Plex Serif',serif;font-size:34px;font-weight:700;color:var(--accent)">R$ 36 mi</div>
+        <div class="sub" style="font-size:15px;margin-top:5px">Bancas médias e pequenas — nosso alvo</div></div>
+      <div class="card ok"><div class="lbl" style="color:var(--ok);margin-bottom:7px">SOM · ano 5</div>
+        <div style="font-family:'IBM Plex Serif',serif;font-size:34px;font-weight:700;color:var(--ok)">R$ 27 mi</div>
+        <div class="sub" style="font-size:15px;margin-top:5px">72 bancas · 7,7 mi de inscrições</div></div>
+    </div>
+    <div class="card am">
+      <div class="lbl" style="color:var(--amber);margin-bottom:7px">A parte que não escondemos</div>
+      <div style="font-size:18px;line-height:1.5"><b>O TAM desta categoria é modesto.</b> Mesmo dominando o segmento, são algumas dezenas de milhões. A empresa cresce por <b>adjacência, não por participação</b> — certificação profissional, prova de conselho de classe e seleção corporativa em massa usam o mesmo motor: muita gente, prazo curto, resultado contestável. <b>Está no plano do ano 3, não do ano 5.</b></div>
+    </div>
+  </div>
+  <div class="sf"><span>LISURA · PITCH</span><span>7 / 10</span></div>
+</section>
+
+<!-- 08 concorrencia -->
+<section class="slide">
+  <div class="sh"><span class="sn">07</span><h2>A concorrência existe — e o argumento não é “ninguém faz”</h2></div>
+  <div class="body">
+    <table class="t"><thead><tr><th>Quem já está no mercado</th><th>O que faz</th></tr></thead><tbody>
+      <tr><td><b>Gestor Editais</b> (Grupo ACT)</td><td>Gestão de concursos. <b>Já cobra sobre o total de inscrições</b> — valida nosso modelo de preço</td></tr>
+      <tr><td><b>ProSeleta</b></td><td>Gestão de todas as fases, da inscrição ao resultado</td></tr>
+      <tr><td><b>Fábrica de Provas</b></td><td>Avaliação, inscrição, aplicação e correção</td></tr>
+      <tr><td><b>ADSR</b> · <b>MH Informática</b> · <b>Instituto Avalia</b></td><td>ERP de concursos, correção de cartão-resposta, prova online</td></tr>
+    </tbody></table>
+    <div class="verdict" style="border-color:var(--ok);background:var(--ok-soft);color:var(--ok)">
+      Todos fazem a inscrição. <b>Quase ninguém sobrevive ao dia do pico e ao recurso em massa.</b></div>
+    <div class="sub">É por isso que o programa de arquitetura <b>é o produto</b>, não o custo: capacidade comprovada por ensaio contratual, isolamento por certame, recálculo versionado e trilha que sobrevive a uma ação judicial três anos depois.</div>
+  </div>
+  <div class="sf"><span>LISURA · PITCH</span><span>8 / 10</span></div>
+</section>
+
+<!-- 09 projecoes -->
+<section class="slide">
+  <div class="sh"><span class="sn">08</span><h2>Projeções</h2></div>
+  <div class="body">
+    <table class="t"><thead><tr><th>R$ milhões</th><th style="text-align:right">Ano 1</th><th style="text-align:right">Ano 2</th><th style="text-align:right">Ano 3</th><th style="text-align:right">Ano 4</th><th style="text-align:right">Ano 5</th></tr></thead><tbody>
+      <tr><td>Bancas clientes</td><td class="n">6</td><td class="n">13</td><td class="n">28</td><td class="n">48</td><td class="n"><b>72</b></td></tr>
+      <tr><td>Inscrições processadas (milhões)</td><td class="n">0,12</td><td class="n">0,69</td><td class="n">2,05</td><td class="n">4,30</td><td class="n"><b>7,70</b></td></tr>
+      <tr class="hi"><td><b>Receita (ARR)</b></td><td class="n"><b>0,6</b></td><td class="n"><b>2,9</b></td><td class="n"><b>7,8</b></td><td class="n"><b>15,8</b></td><td class="n"><b>27,4</b></td></tr>
+      <tr><td>Margem bruta</td><td class="n">67%</td><td class="n">72%</td><td class="n">76%</td><td class="n">79%</td><td class="n">81%</td></tr>
+      <tr><td><b>EBITDA</b></td><td class="n">−3,8</td><td class="n">−5,0</td><td class="n">−3,9</td><td class="n">−0,6</td><td class="n"><b>+5,3</b></td></tr>
+      <tr><td>Headcount</td><td class="n">14</td><td class="n">26</td><td class="n">38</td><td class="n">52</td><td class="n">68</td></tr>
+    </tbody></table>
+    <div class="cols">
+      <div class="card ok"><div class="lbl" style="color:var(--ok);margin-bottom:6px">Breakeven</div>
+        <div style="font-size:18px">4º trimestre do <b>ano 4</b></div></div>
+      <div class="card am"><div class="lbl" style="color:var(--amber);margin-bottom:6px">A variável que decide o plano</div>
+        <div style="font-size:17px;line-height:1.45">O preço por inscrição. <b>Abaixo de R$ 2,15 o modelo não fecha</b> com esta estrutura de custo — é a primeira validação da Seed.</div></div>
+    </div>
+  </div>
+  <div class="sf"><span>LISURA · PITCH</span><span>9 / 10</span></div>
+</section>
+
+<!-- 10 pedido -->
+<section class="slide">
+  <div class="sh"><span class="sn">09</span><h2>O pedido</h2></div>
+  <div class="body">
+    <div class="verdict" style="font-size:30px">Seed de <b>R$ 10 milhões</b><br><span style="font-size:19px;font-weight:600">24 meses de pista, até 12 bancas e métricas de Série A</span></div>
+    <div class="cols3">
+      <div class="card"><div class="lbl" style="margin-bottom:7px">55% · Engenharia</div><div style="font-size:16.5px;line-height:1.45">Ciclo completo do certame e o programa de capacidade que é o diferencial</div></div>
+      <div class="card"><div class="lbl" style="margin-bottom:7px">25% · Go-to-market</div><div style="font-size:16.5px;line-height:1.45">Venda direta a bancas médias. <b>Sem licitação</b> — a banca contrata como empresa privada</div></div>
+      <div class="card"><div class="lbl" style="margin-bottom:7px">20% · Conformidade</div><div style="font-size:16.5px;line-height:1.45">LGPD, trilha de auditoria e certificações que a diligência da banca exige</div></div>
+    </div>
+    <div class="card ac">
+      <div style="font-size:20px;line-height:1.45;text-align:center">
+      <b>A tese em uma frase:</b> um mercado inteiro é obrigado por lei a trocar de plataforma até 2028,<br>
+      e o critério de escolha vai ser exatamente aquilo que ninguém resolve — <b>aguentar o último dia.</b></div>
+    </div>
+  </div>
+  <div class="sf"><span>LISURA · PITCH</span><span>10 / 10</span></div>
+</section>
+
+</body></html>

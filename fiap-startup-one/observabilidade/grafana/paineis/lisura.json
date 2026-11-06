@@ -1,0 +1,249 @@
+{
+  "uid": "lisura",
+  "title": "Lisura — operação em tempo real",
+  "description": "O que o sistema está fazendo agora: instâncias, tráfego, fila, banco, processo e o ensaio de carga. Anotações marcam o início e o fim de cada ensaio e cada mudança do nível de degradação.",
+  "tags": ["lisura"],
+  "timezone": "browser",
+  "refresh": "5s",
+  "time": { "from": "now-15m", "to": "now" },
+  "schemaVersion": 41,
+  "editable": false,
+  "graphTooltip": 1,
+  "annotations": {
+    "list": [
+      {
+        "name": "Ensaio de carga",
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "enable": true,
+        "iconColor": "#FF7A1A",
+        "expr": "changes(max(lisura_ensaio_rodando)[15s:5s]) > 0",
+        "step": "5s",
+        "titleFormat": "ensaio começou ou terminou",
+        "textFormat": "",
+        "useValueForTime": false
+      },
+      {
+        "name": "Nível de degradação",
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "enable": true,
+        "iconColor": "#E02F44",
+        "expr": "changes(max(lisura_degradacao_nivel)[15s:5s]) > 0",
+        "step": "5s",
+        "titleFormat": "nível de degradação mudou",
+        "useValueForTime": false
+      },
+      {
+        "name": "Instância subiu",
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "enable": true,
+        "iconColor": "#5794F2",
+        "expr": "changes(count(lisura_instancia_info)[15s:5s]) > 0",
+        "step": "5s",
+        "titleFormat": "instâncias mudaram",
+        "useValueForTime": false
+      }
+    ]
+  },
+  "panels": [
+    { "id": 100, "type": "row", "title": "Agora", "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 }, "collapsed": false, "panels": [] },
+    {
+      "id": 1, "type": "stat", "title": "Instâncias da API no ar",
+      "description": "Uma série lisura_instancia_info por processo da API. Muda quando uma instância sobe, cai ou troca de versão.",
+      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "refId": "A", "expr": "count(up{job=\"lisura-api\"} == 1) or vector(0)" }],
+      "fieldConfig": { "defaults": { "unit": "none", "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "green", "value": 1 }] } }, "overrides": [] },
+      "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } }
+    },
+    {
+      "id": 2, "type": "stat", "title": "Nível de degradação",
+      "description": "0 normal · 1 sala de espera · 2 só o essencial · 3 só consulta.",
+      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "refId": "A", "expr": "max(lisura_degradacao_nivel)" }],
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [{ "type": "value", "options": { "0": { "text": "normal" }, "1": { "text": "sala de espera" }, "2": { "text": "só o essencial" }, "3": { "text": "só consulta" } } }],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "orange", "value": 1 }, { "color": "red", "value": 2 }] }
+        },
+        "overrides": []
+      },
+      "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } }
+    },
+    {
+      "id": 3, "type": "stat", "title": "Requisições por segundo",
+      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "refId": "A", "expr": "sum(rate(lisura_http_requisicoes_total[30s])) or vector(0)" }],
+      "fieldConfig": { "defaults": { "unit": "reqps", "decimals": 0 }, "overrides": [] },
+      "options": { "colorMode": "value", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } }
+    },
+    {
+      "id": 4, "type": "stat", "title": "p95 da API (todas as rotas)",
+      "description": "O H1 pede menos de 2 s nas requisições críticas.",
+      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "refId": "A", "expr": "histogram_quantile(0.95, sum by (le) (rate(lisura_http_duracao_segundos_bucket[1m])))" }],
+      "fieldConfig": { "defaults": { "unit": "s", "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "orange", "value": 0.5 }, { "color": "red", "value": 2 }] } }, "overrides": [] },
+      "options": { "colorMode": "value", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } }
+    },
+    {
+      "id": 5, "type": "stat", "title": "Erros 5xx por segundo",
+      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "refId": "A", "expr": "sum(rate(lisura_http_requisicoes_total{status=~\"5..\"}[30s])) or vector(0)" }],
+      "fieldConfig": { "defaults": { "unit": "reqps", "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 0.1 }] } }, "overrides": [] },
+      "options": { "colorMode": "value", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } }
+    },
+    {
+      "id": 6, "type": "stat", "title": "Tarefas vencidas na fila",
+      "description": "Pendentes cuja hora chegou: esperando trabalhador.",
+      "gridPos": { "h": 4, "w": 4, "x": 20, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "refId": "A", "expr": "sum(lisura_fila_vencidas) or vector(0)" }],
+      "fieldConfig": { "defaults": { "unit": "none", "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "orange", "value": 1000 }, { "color": "red", "value": 50000 }] } }, "overrides": [] },
+      "options": { "colorMode": "value", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } }
+    },
+
+    { "id": 101, "type": "row", "title": "Ensaio de carga (k6)", "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 }, "collapsed": false, "panels": [] },
+    {
+      "id": 20, "type": "timeseries", "title": "Usuários virtuais e multiplicador",
+      "description": "VUs do k6 e o multiplicador da carga média no patamar (40× é o H1).",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 6 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "refId": "A", "expr": "sum(k6_vus)", "legendFormat": "VUs" },
+        { "refId": "B", "expr": "max(lisura_ensaio_multiplicador)", "legendFormat": "multiplicador" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "none" }, "overrides": [] }
+    },
+    {
+      "id": 21, "type": "timeseries", "title": "Requisições do k6 por segundo, e falhas",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 6 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "refId": "A", "expr": "sum(rate(k6_http_reqs_total[30s]))", "legendFormat": "requisições/s" },
+        { "refId": "B", "expr": "sum(rate(k6_http_reqs_total{expected_response=\"false\"}[30s]))", "legendFormat": "falhas/s" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "reqps" }, "overrides": [] }
+    },
+    {
+      "id": 22, "type": "timeseries", "title": "Tempo de resposta visto pelo candidato (k6, p95)",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 6 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "refId": "A", "expr": "max by (name) (k6_http_req_duration_p95)", "legendFormat": "{{name}}" }],
+      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] },
+      "options": { "legend": { "displayMode": "table", "placement": "right", "calcs": ["lastNotNull"] } }
+    },
+
+    { "id": 102, "type": "row", "title": "Tráfego da API", "gridPos": { "h": 1, "w": 24, "x": 0, "y": 14 }, "collapsed": false, "panels": [] },
+    {
+      "id": 30, "type": "timeseries", "title": "Requisições por segundo, por rota (as 10 maiores)",
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 15 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "refId": "A", "expr": "topk(10, sum by (rota) (rate(lisura_http_requisicoes_total[30s])))", "legendFormat": "{{rota}}" }],
+      "fieldConfig": { "defaults": { "unit": "reqps" }, "overrides": [] },
+      "options": { "legend": { "displayMode": "table", "placement": "right", "calcs": ["lastNotNull"] } }
+    },
+    {
+      "id": 31, "type": "timeseries", "title": "p95 por rota (as 10 mais lentas)",
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 15 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "refId": "A", "expr": "topk(10, histogram_quantile(0.95, sum by (rota, le) (rate(lisura_http_duracao_segundos_bucket[1m]))))", "legendFormat": "{{rota}}" }],
+      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] },
+      "options": { "legend": { "displayMode": "table", "placement": "right", "calcs": ["lastNotNull"] } }
+    },
+    {
+      "id": 32, "type": "timeseries", "title": "Respostas por classe de status",
+      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 24 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "refId": "A", "expr": "sum by (classe) (label_replace(rate(lisura_http_requisicoes_total[30s]), \"classe\", \"${1}xx\", \"status\", \"(.).*\"))", "legendFormat": "{{classe}}" }],
+      "fieldConfig": { "defaults": { "unit": "reqps" }, "overrides": [] }
+    },
+    {
+      "id": 33, "type": "timeseries", "title": "Sala de espera: senhas emitidas e chamadas",
+      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 24 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "refId": "A", "expr": "max(lisura_sala_senhas_emitidas)", "legendFormat": "emitidas" },
+        { "refId": "B", "expr": "max(lisura_sala_senhas_liberadas)", "legendFormat": "chamadas" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "none" }, "overrides": [] }
+    },
+
+    { "id": 103, "type": "row", "title": "Fila de tarefas", "gridPos": { "h": 1, "w": 24, "x": 0, "y": 31 }, "collapsed": false, "panels": [] },
+    {
+      "id": 40, "type": "timeseries", "title": "Pendentes por tipo (todas as instâncias)",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 32 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "refId": "A", "expr": "max by (tipo) (sum by (tipo, instance) (lisura_fila_pendentes))", "legendFormat": "{{tipo}}" }],
+      "fieldConfig": { "defaults": { "unit": "none" }, "overrides": [] }
+    },
+    {
+      "id": 41, "type": "timeseries", "title": "Espera na fila, p95 por tipo",
+      "description": "Quanto a tarefa esperou trabalhador. O aviso por e-mail (prioridade de lote) espera o pico escoar de propósito.",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 32 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "refId": "A", "expr": "histogram_quantile(0.95, sum by (tipo, le) (rate(lisura_fila_espera_segundos_bucket[1m])))", "legendFormat": "{{tipo}}" }],
+      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] }
+    },
+    {
+      "id": 42, "type": "timeseries", "title": "Tarefas por segundo, por tipo e resultado",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 32 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "refId": "A", "expr": "sum by (tipo, resultado) (rate(lisura_fila_tarefas_total[30s]))", "legendFormat": "{{tipo}} {{resultado}}" }],
+      "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] }
+    },
+    {
+      "id": 43, "type": "timeseries", "title": "Trabalhadores de pé e tarefas rodando",
+      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 40 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "refId": "A", "expr": "sum(lisura_fila_trabalhadores)", "legendFormat": "trabalhadores" },
+        { "refId": "B", "expr": "sum(lisura_fila_rodando)", "legendFormat": "rodando" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "none" }, "overrides": [] }
+    },
+    {
+      "id": 44, "type": "timeseries", "title": "Tarefa vencida mais antiga, por tipo",
+      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 40 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "refId": "A", "expr": "max by (tipo) (lisura_fila_mais_velha_segundos)", "legendFormat": "{{tipo}}" }],
+      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] }
+    },
+
+    { "id": 104, "type": "row", "title": "Banco e processo", "gridPos": { "h": 1, "w": 24, "x": 0, "y": 47 }, "collapsed": false, "panels": [] },
+    {
+      "id": 50, "type": "timeseries", "title": "Conexões do banco (pool da API)",
+      "description": "Em uso encostando no máximo = pedidos esperando conexão (veja as esperas).",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 48 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "refId": "A", "expr": "sum by (estado) (lisura_db_conexoes)", "legendFormat": "{{estado}}" },
+        { "refId": "B", "expr": "sum(lisura_db_conexoes_max)", "legendFormat": "máximo" },
+        { "refId": "C", "expr": "sum(rate(lisura_db_esperas_total[30s]))", "legendFormat": "esperas/s" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "none" }, "overrides": [] }
+    },
+    {
+      "id": 51, "type": "timeseries", "title": "CPU da API (núcleos)",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 48 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "refId": "A", "expr": "rate(process_cpu_seconds_total{job=\"lisura-api\"}[30s])", "legendFormat": "{{instance}}" }],
+      "fieldConfig": { "defaults": { "unit": "none", "decimals": 2 }, "overrides": [] }
+    },
+    {
+      "id": 52, "type": "timeseries", "title": "Memória e goroutines da API",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 48 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "refId": "A", "expr": "process_resident_memory_bytes{job=\"lisura-api\"}", "legendFormat": "memória {{instance}}" },
+        { "refId": "B", "expr": "go_goroutines{job=\"lisura-api\"}", "legendFormat": "goroutines {{instance}}" }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "bytes" },
+        "overrides": [{ "matcher": { "id": "byRegexp", "options": "goroutines.*" }, "properties": [{ "id": "unit", "value": "none" }, { "id": "custom.axisPlacement", "value": "right" }] }]
+      }
+    }
+  ]
+}

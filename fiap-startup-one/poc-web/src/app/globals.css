@@ -1,0 +1,205 @@
+@import "../tema/tokens.css";
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--ink-900);
+}
+
+/* ---- moldura (protótipo do Inclusa: mockups/antd-heroui-sidenav) ---- */
+
+.lateral.ant-layout-sider {
+  margin: 12px 0 12px 12px;
+  height: calc(100vh - 24px);
+  position: sticky;
+  top: 12px;
+  background: var(--surface) !important;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+.lateral .ant-layout-sider-children,
+.lateral-gaveta {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.marca {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+  padding: 0 16px 0 20px;
+}
+.lateral.ant-layout-sider-collapsed .marca {
+  justify-content: center;
+  padding: 0;
+}
+.marca-nome {
+  font-size: 21px;
+  font-weight: 800;
+  color: var(--brand-700);
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  text-decoration: none;
+}
+
+.lateral .ant-menu,
+.lateral-gaveta .ant-menu {
+  border-inline-end: 0 !important;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: visible;
+}
+.ant-menu .ant-menu-item-group-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  color: var(--ink-600);
+  text-transform: uppercase;
+  padding: 16px 16px 6px;
+}
+/* Recolhida: o título da seção vira um traço curto. */
+.lateral .ant-menu-item-divider {
+  width: 12px;
+  margin: 14px auto !important;
+  border-color: var(--ink-600) !important;
+}
+
+/* Item ativo: fundo de seleção + barra de marcador colada na borda do cartão. */
+.ant-menu .ant-menu-item {
+  position: relative;
+  overflow: visible !important;
+}
+.ant-menu .ant-menu-item-selected::before {
+  content: "";
+  position: absolute;
+  left: -12px;
+  top: 6px;
+  bottom: 6px;
+  width: 4px;
+  border-radius: 0 4px 4px 0;
+  background: var(--marker-400);
+}
+
+/* Recolhida: cada ícone numa caixa de 44 × 44, centralizado. */
+.lateral .ant-menu-inline-collapsed > .ant-menu-item {
+  width: 44px !important;
+  height: 44px;
+  margin: 4px auto !important;
+  padding: 0 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+}
+.lateral .ant-menu-inline-collapsed > .ant-menu-item .ant-menu-title-content {
+  display: none;
+}
+.lateral .ant-menu-inline-collapsed > .ant-menu-item .anticon {
+  margin: 0;
+  line-height: 1;
+}
+.lateral .ant-menu-inline-collapsed > .ant-menu-item-selected::before {
+  left: -14px;
+  top: 8px;
+  bottom: 8px;
+}
+
+.perfil {
+  margin: 12px;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  background: var(--brand-50);
+}
+.lateral.ant-layout-sider-collapsed .perfil {
+  padding: 8px 0;
+  display: flex;
+  justify-content: center;
+  background: transparent;
+}
+
+.topo {
+  margin: 12px 12px 0;
+  min-height: 64px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+.conteudo {
+  padding: 16px 12px 32px;
+  max-width: 1280px;
+}
+
+.ant-card {
+  box-shadow: var(--shadow-sm);
+}
+.ant-card-hoverable:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* Celular: a lateral vira gaveta; o topo e o conteúdo encostam nas bordas. */
+@media (max-width: 991px) {
+  .topo {
+    margin: 8px 8px 0;
+    padding: 0 12px;
+  }
+  .topo .busca {
+    display: none;
+  }
+  .conteudo {
+    padding: 12px 8px 24px;
+  }
+}
+
+/* ---- peças das telas ---- */
+
+.rotulo-secao {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  color: var(--ink-600);
+  text-transform: uppercase;
+  margin: 20px 4px 10px;
+}
+
+/* Ação urgente: fundo de aviso + barra de marcador à esquerda (cartão "Ações de hoje" do Inclusa). */
+.acao-urgente.ant-card {
+  border-left: 6px solid var(--marker-400);
+  background: var(--marker-50);
+}
+
+.selo-aviso.ant-tag {
+  background: var(--marker-50);
+  color: var(--marker-800);
+  border-color: var(--marker-400);
+}
+
+/* Passos: concluído na cor de ação com ✓; a linha já percorrida na cor de marcador. */
+.ant-steps-item-finish .ant-steps-item-icon {
+  background: var(--brand-700) !important;
+  border-color: var(--brand-700) !important;
+}
+.ant-steps-item-finish .ant-steps-item-icon .ant-steps-icon,
+.ant-steps-item-finish .ant-steps-item-icon .anticon /* antd 6 */ {
+  color: #fff !important;
+}
+
+:focus-visible {
+  outline: 3px solid var(--brand-700);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}

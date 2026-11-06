@@ -1,0 +1,32 @@
+# Gerados ou da máquina local: nunca vão para o repositório.
+
+# dependências e compilação
+node_modules/
+.next/
+out/
+build/
+*.tsbuildinfo
+fiap-startup-one/poc/bin/
+fiap-startup-one/poc-web/public/design/
+storybook-static/
+
+# dados locais da POC (documentos, caixa de saída, cofre, publicação)
+fiap-startup-one/poc/dados/
+
+# resultados de ensaio (logs do k6 de dezenas de MB); o exemplo de relatório fica em carga/
+fiap-startup-one/carga/resultados/
+
+# Terraform: o estado guarda os segredos gerados
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+crash.log
+
+# binários compilados soltos (go build fora de bin/)
+*.exe
+
+# segredos e ambiente
+.env
+.env.*
+*.pem

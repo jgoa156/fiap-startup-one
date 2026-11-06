@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Cartão de confirmação · {{.Certame}}</title>
+<style>
+  /* Página autossuficiente: servida pelo CDN, sem depender do front nem do banco. Paleta Grafite. */
+  :root { --acao: #2F3B4C; --titulo: #1F2833; --tinta: #14233A; --tinta2: #516178; --divisor: #E6EBF2; --marcador: #FF7A1A; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #F4F5F8; color: var(--tinta); font-family: Nunito, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 720px; margin: 24px auto; background: #fff; border-radius: 14px; padding: 28px 32px;
+         box-shadow: 0 0 15px 0 rgb(0 0 0 / .03), 0 2px 30px 0 rgb(0 0 0 / .08), 0 0 1px 0 rgb(0 0 0 / .3);
+         border-top: 6px solid var(--marcador); }
+  .marca { font-weight: 800; font-size: 20px; color: var(--acao); }
+  h1 { color: var(--titulo); font-size: 24px; margin: 12px 0 4px; }
+  .sub { color: var(--tinta2); margin: 0 0 20px; }
+  dl { display: grid; grid-template-columns: 200px 1fr; margin: 0; }
+  dt, dd { padding: 10px 0; border-bottom: 1px solid var(--divisor); margin: 0; }
+  dt { color: var(--tinta2); font-weight: 600; }
+  dd { font-weight: 700; }
+  .aviso { margin-top: 20px; padding: 12px 16px; border-radius: 12px; background: #FFF1E6; color: #8A3B00; border-left: 4px solid var(--marcador); }
+  footer { margin-top: 20px; color: var(--tinta2); font-size: 13px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  button { font: inherit; font-weight: 700; padding: 10px 20px; border-radius: 999px; border: 0; background: var(--acao); color: #fff; cursor: pointer; }
+  @media (max-width: 600px) { main { margin: 0; border-radius: 0; padding: 20px; } dl { grid-template-columns: 1fr; } dt { border-bottom: 0; padding-bottom: 0; } }
+  @media print { body { background: #fff; } main { box-shadow: none; margin: 0; } button { display: none; } }
+</style>
+</head>
+<body>
+<main>
+  <div class="marca">Lisura</div>
+  <h1>Cartão de confirmação de inscrição</h1>
+  <p class="sub">{{.Certame}} · {{.Banca}}</p>
+  <dl>
+    <dt>Inscrição nº</dt><dd>{{.Numero}}</dd>
+    <dt>Candidato</dt><dd>{{.Nome}}</dd>
+    <dt>CPF</dt><dd>{{.CPF}}</dd>
+    <dt>Cargo</dt><dd>{{.Cargo}}</dd>
+    <dt>Cidade de prova</dt><dd>{{.Cidade}}</dd>
+    <dt>Reserva de vagas</dt><dd>{{if .Cotas}}{{range $i, $c := .Cotas}}{{if $i}}; {{end}}{{$c}}{{end}}{{else}}Ampla concorrência{{end}}</dd>
+    <dt>Atendimento especial</dt><dd>{{if .Necessidades}}{{range $i, $n := .Necessidades}}{{if $i}}; {{end}}{{$n}}{{end}}{{else}}Nenhum{{end}}</dd>
+    <dt>Situação</dt><dd>{{.Situacao}}</dd>
+    {{if .Sala}}<dt>Local de prova</dt><dd>{{.Local}}<br><span style="font-weight:400">{{.Endereco}}</span></dd>
+    <dt>Sala</dt><dd>{{.Sala}}</dd>{{end}}
+  </dl>
+  {{if not .Sala}}<p class="aviso">O local e a sala de prova são divulgados na fase de ensalamento e aparecem neste cartão quando ele for atualizado.</p>{{end}}
+  <footer>
+    <span>Código de verificação {{.Codigo}} · selo da trilha {{.Selo}} · gerado em {{.GeradoEm}}</span>
+    <button type="button" onclick="window.print()">Imprimir</button>
+  </footer>
+</main>
+</body>
+</html>

@@ -1,0 +1,21 @@
+# Prometheus da máquina local: raspa a API e o executor de ensaios a cada 5 s e recebe as métricas do
+# k6 por remote write (o Prometheus sobe com --web.enable-remote-write-receiver).
+#
+# Instâncias da API: a 8082 sempre; outras entram em instancias.json (file_sd), que o Prometheus relê
+# sozinho: subir uma segunda API numa porta nova e acrescentar o endereço ali faz o painel mostrar a
+# instância nova em segundos, sem reiniciar nada.
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+
+scrape_configs:
+  - job_name: lisura-api
+    static_configs:
+      - targets: ["127.0.0.1:8082"]
+    file_sd_configs:
+      - files: ["instancias.json"]
+        refresh_interval: 5s
+
+  - job_name: lisura-ensaiador
+    static_configs:
+      - targets: ["127.0.0.1:8083"]

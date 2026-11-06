@@ -1,0 +1,6 @@
+# O estado guarda os segredos gerados (random_password): nunca vai para o repositório.
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+*.tfvars

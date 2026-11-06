@@ -1,0 +1,11 @@
+apiVersion: 1
+providers:
+  - name: lisura
+    folder: Lisura
+    type: file
+    disableDeletion: true
+    allowUiUpdates: false
+    updateIntervalSeconds: 10
+    options:
+      # Relativo não funciona aqui: o subir-observabilidade.ps1 troca $PAINEIS pelo caminho absoluto.
+      path: $PAINEIS

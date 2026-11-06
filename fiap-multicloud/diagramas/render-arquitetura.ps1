@@ -1,4 +1,4 @@
-﻿# Certamis - arquitetura alvo. Gera o PNG usado no slide 7.
+﻿# Lisura - arquitetura alvo. Gera PNG e JPG.
 # Uso:  powershell -ExecutionPolicy Bypass -File render-arquitetura.ps1
 
 Add-Type -AssemblyName System.Drawing
@@ -40,7 +40,7 @@ function Arr($x1,$y1,$x2,$y2,$c,$w){ $pen=New-Object System.Drawing.Pen ((C $c),
   $g.DrawLine($pen,[single]$x2,[single]$y2,[single]($x2-$L*[Math]::Cos($a+$O)),[single]($y2-$L*[Math]::Sin($a+$O))); $pen.Dispose() }
 
 # ── titulo ──────────────────────────────────────────────────────────────
-Txt 40 6 27 $IK "Certamis · arquitetura alvo: uma nuvem para operar, duas para sobreviver" $true
+Txt 40 6 27 $IK "Lisura — arquitetura alvo (nuvem única endurecida)" $true
 Txt 40 42 15 $GY "O calendário do edital é dado de entrada da infraestrutura. Roxo = fora da nuvem primária." $false
 
 # ── candidato ───────────────────────────────────────────────────────────
@@ -49,8 +49,8 @@ Arr 720 98 720 118 $IK 2
 
 # ── cloudflare ──────────────────────────────────────────────────────────
 Box 40 120 1360 64 $VI $VIF 2.5
-TxtC 720 132 18 "#5F3DC4" "CLOUDFLARE · DNS · WAF · FILA DE ESPERA" $true
-TxtC 720 158 14 $IK "plano de controle neutro: se a AWS cai, o DNS continua de pé" $false
+TxtC 720 132 18 "#5F3DC4" "CLOUDFLARE — DNS · WAF · FILA DE ESPERA" $true
+TxtC 720 158 14 $IK "plano de controle neutro — se a AWS cai, o DNS continua de pé" $false
 Txt 1180 128 12 $VI "FORA DA AWS" $true
 
 Arr 720 186 720 208 $IK 2
@@ -58,23 +58,23 @@ Arr 720 186 720 208 $IK 2
 # ── AWS ─────────────────────────────────────────────────────────────────
 Box 40 210 1360 570 $OR $null 2.5 10 $true
 Txt 62 222 18 $OR "AWS sa-east-1 · 3 zonas de disponibilidade" $true
-Txt 62 248 13 $GY "região única. Rio de Janeiro é Local Zone, não é região, e não isola falha." $false
+Txt 62 248 13 $GY "região única. Rio de Janeiro é Local Zone, não é região — não isola falha." $false
 
 # publicacao estatica
 Box 62 274 1316 92 $GR $GRF 2.5
-Txt 84 286 17 "#2B8A3E" "CLOUDFRONT + S3 · PUBLICAÇÃO ESTÁTICA" $true
-Txt 84 312 14 $IK "gabarito · cartão de confirmação · resultado e classificação · com cópia no Google Cloud, servida se a região cair" $false
+Txt 84 286 17 "#2B8A3E" "CLOUDFRONT + S3 — PUBLICAÇÃO ESTÁTICA" $true
+Txt 84 312 14 $IK "gabarito · cartão de confirmação · resultado e classificação" $false
 Txt 84 334 14 "#2B8A3E" "Os 3 maiores picos são leitura de dado que não muda. Sobrevive à queda de TODO o backend." $true
 
 # celulas
-Txt 62 382 13 $BL "CÉLULAS · isolamento entre inquilinos" $true
+Txt 62 382 13 $BL "CÉLULAS — isolamento entre inquilinos" $true
 $cx = 62
-for($i=1; $i -le 3; $i++){
-  Box $cx 402 318 78 $BL $BLF 2
-  TxtC ($cx+159) 414 16 "#1864AB" ("Célula " + $i) $true
-  TxtC ($cx+159) 438 13 $IK "EKS + Aurora" $false
-  TxtC ($cx+159) 456 12 $GY "bancas pequenas" $false
-  $cx += 330
+for($i=1; $i -le 4; $i++){
+  Box $cx 402 235 78 $BL $BLF 2
+  TxtC ($cx+117) 414 16 "#1864AB" ("Célula " + $i) $true
+  TxtC ($cx+117) 438 13 $IK "EKS + Aurora" $false
+  TxtC ($cx+117) 456 12 $GY "bancas pequenas" $false
+  $cx += 247
 }
 Box 1050 402 328 78 $RD $RDF 2.5
 TxtC 1214 412 16 $RD "CÉLULA DEDICADA" $true
@@ -83,9 +83,9 @@ TxtC 1214 454 12 $GY "alocada por evento, devolvida depois" $false
 
 # assincrono + agenda
 Box 62 500 650 92 $RL $LT 2
-Txt 84 512 16 $IK "SQS + LAMBDA · GERAÇÃO ASSÍNCRONA" $true
+Txt 84 512 16 $IK "SQS + LAMBDA — GERAÇÃO ASSÍNCRONA" $true
 Txt 84 538 14 $GY "boleto · cartão · PDF · e-mail" $false
-Txt 84 560 14 $IK "nunca no request: era a D3, e derrubava a CPU no pico" $false
+Txt 84 560 14 $IK "nunca no request — era a D3, e derrubava a CPU no pico" $false
 
 Box 728 500 650 92 $OR $ORF 2.5
 Txt 750 512 16 $OR "SERVIÇO DE AGENDA" $true
@@ -94,11 +94,11 @@ Txt 750 560 14 $IK "provisiona 6 h antes do pico, devolve 6 h depois" $true
 
 # modo degradado
 Box 62 612 1316 78 $RL "#FFF9DB" 2
-Txt 84 622 15 "#E8590C" "MODO DEGRADADO · automático, em 5 níveis" $true
+Txt 84 622 15 "#E8590C" "MODO DEGRADADO — automático, em 5 níveis" $true
 Txt 84 646 13 $IK "1 fila de espera  →  2 desliga painel da banca  →  3 só escrita essencial  →  4 SÓ ESTÁTICO  →  5 página de status" $false
 Txt 84 666 13 $GY "No nível 4, resultado e gabarito continuam publicados mesmo com a região inteira fora do ar." $false
 
-Txt 62 710 15 $OR "Ensaio de carga a 40× a média DO CERTAME (16,7 mil inscrições/h num certame de 300 mil): relatório assinado, anexo ao contrato." $true
+Txt 62 710 15 $OR "Ensaio de carga a 40× antes de cada certame acima de 50 mil candidatos — relatório assinado, anexo ao contrato." $true
 Txt 62 734 14 $GY "Congelamento de implantação enquanto houver janela crítica aberta em qualquer certame ativo." $false
 
 # ── fora da AWS: backup e status ────────────────────────────────────────
@@ -106,25 +106,30 @@ Arr 400 782 400 810 $VI 2
 Arr 1040 782 1040 810 $VI 2
 
 Box 62 812 660 84 $VI $VIF 2.5
-Txt 84 824 16 "#5F3DC4" "GOOGLE CLOUD, SÃO PAULO · backup e restauração a frio" $true
-Txt 84 850 14 $IK "backup imutável · se a AWS cair, o sistema volta aqui em ~8 h" $false
-Txt 84 872 13 $GY "nada fica ligado: a restauração é ensaiada todo trimestre" $false
+Txt 84 824 16 "#5F3DC4" "BACKUP OFF-SITE — segundo provedor" $true
+Txt 84 850 14 $IK "trava de imutabilidade · restauração testada trimestralmente" $false
+Txt 84 872 13 $GY "backup no provedor que você quer sobreviver não é backup — é cópia" $false
 
 Box 738 812 640 84 $VI $VIF 2.5
-Txt 760 824 16 "#5F3DC4" "PÁGINA DE STATUS · provedor separado" $true
+Txt 760 824 16 "#5F3DC4" "PÁGINA DE STATUS — provedor separado" $true
 Txt 760 850 14 $IK "precisa sobreviver à queda que está anunciando" $false
 Txt 760 872 13 $GY "é o canal formal para comunicar prorrogação de prazo" $false
 
 # ── rodape ──────────────────────────────────────────────────────────────
 Box 40 916 1360 68 $RL $LT 2
-Txt 62 926 15 $IK "FORA DA AWS: DNS, WAF, página de status, backup e restauração a frio. R$ 170 mil/ano, 5% do EBITDA." $true
-Txt 62 950 14 $GY "A operação NÃO sai da AWS: uma segunda nuvem ligada, rodando o mesmo software mal dimensionado, cai igual." $false
+Txt 62 926 15 $IK "O ÚNICO MULTICLOUD QUE ADOTAMOS: DNS, WAF, página de status e backup — R$ 162 mil/ano, 3% do EBITDA." $true
+Txt 62 950 14 $GY "A aplicação e o banco NÃO saem da AWS: uma segunda nuvem rodando o mesmo software mal dimensionado cai igual." $false
 
 Txt 40 992 12 $GY "Roxo = fora da nuvem primária · Laranja = AWS · Verde = estático, sobrevive ao backend · Azul = célula · Vermelho = célula dedicada" $false
 
 $dir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $png = Join-Path $dir "arquitetura-alvo.png"
 $bmp.Save($png, [System.Drawing.Imaging.ImageFormat]::Png)
+$jpg = Join-Path $dir "arquitetura-alvo.jpg"
+$enc = [System.Drawing.Imaging.ImageCodecInfo]::GetImageEncoders() | Where-Object { $_.MimeType -eq 'image/jpeg' }
+$pr = New-Object System.Drawing.Imaging.EncoderParameters 1
+$pr.Param[0] = New-Object System.Drawing.Imaging.EncoderParameter ([System.Drawing.Imaging.Encoder]::Quality, 92)
+$bmp.Save($jpg, $enc, $pr)
 $g.Dispose(); $bmp.Dispose()
 Write-Output ("PNG  {0}  ({1:N0} KB)" -f $png, ((Get-Item $png).Length/1KB))
-
+Write-Output ("JPG  {0}  ({1:N0} KB)" -f $jpg, ((Get-Item $jpg).Length/1KB))

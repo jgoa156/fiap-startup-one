@@ -1,0 +1,1145 @@
+{
+  "arquivos": [
+    {
+      "nome": "armazenamento.tf",
+      "resumo": "Um bucket, três prefixos: publico/     cartões, relação e dados do certame — lidos SÓ pelo CloudFront documentos/  laudos e comprovantes — só a API lê e grava; nunca públicos fonte/       o zip que o CodeBuild constrói"
+    },
+    {
+      "nome": "balanceador.tf",
+      "resumo": "Balanceador de aplicação: só o CloudFront entra (grupo de segurança + cabeçalho secreto)."
+    },
+    {
+      "nome": "banco.tf",
+      "resumo": "Aurora PostgreSQL Serverless v2, como na arquitetura alvo. A senha do usuário mestre é criada e guardada pelo próprio RDS no Secrets Manager: não passa pelo Terraform nem fica no estado."
+    },
+    {
+      "nome": "cdn.tf",
+      "resumo": "CloudFront é a porta única do candidato, como na arquitetura alvo (lá, atrás do Cloudflare): /publico/*        → S3, com cache (o pico de leitura não chega ao backend) /_next/static/*   → front, com cache (arquivos com hash no nome, nunca mudam) /api/*            → balanceador → API Go, sem cache resto             → balanceador → front Next, sem cache"
+    },
+    {
+      "nome": "cofre.tf",
+      "resumo": "O cofre das âncoras da trilha (poc/internal/ancora): um bucket à parte, com bloqueio de objeto (Object Lock). Cada âncora é gravada uma vez e fica retida: nem a API nem quem tem o banco consegue trocá-la ou apagá-la antes do prazo.  Modo e prazo: no ensaio, GOVERNANCE por 1 dia — os dados são sintéticos e o ambiente precisa poder ser destruído (quem tem s3:BypassGovernanceRetention apaga). Em produção, COMPLIANCE pelo prazo de guarda do certame: nesse modo ninguém apaga antes do fim do prazo, nem o usuário raiz da conta, e o `terraform destroy` falha até lá. Por isso o padrão NÃO é o de produção."
+    },
+    {
+      "nome": "ecs.tf",
+      "resumo": "ECS Fargate: API, front e PSP simulado como serviços; seed, auditoria e k6 como tarefas avulsas. (A arquitetura alvo usa EKS; ver infra/README.md pelo porquê de Fargate na POC.)"
+    },
+    {
+      "nome": "imagens.tf",
+      "resumo": "Registro das imagens (ECR) e quem as constrói (CodeBuild). A construção roda na AWS porque esta máquina não tem Docker para Linux; e assim qualquer pessoa reproduz a imagem só com a AWS CLI."
+    },
+    {
+      "nome": "observabilidade.tf",
+      "resumo": "Observar o sistema mudando na AWS, durante o ensaio: o mesmo papel do Grafana local (observabilidade/ no repositório), com o que a AWS mede sozinha. Tarefas no ar por serviço (o servidor escalando ou caindo), CPU e memória, o tráfego e os erros no balanceador, o tempo de resposta, e a capacidade do Aurora Serverless subindo (ACU). Atualiza a cada minuto (métricas padrão) ou a cada 10 s nas que o Container Insights publica.  As métricas da aplicação (fila, sala de espera, conexões do pool) estão em GET /metrics de cada tarefa, dentro da VPC. Levá-las a um Prometheus e Grafana gerenciados (Amazon Managed Prometheus e Managed Grafana) ainda não está aqui."
+    },
+    {
+      "nome": "rede.tf",
+      "resumo": "Rede: duas zonas. Sub-redes públicas para o balanceador e as tarefas (com IP público e grupo de segurança que só aceita o balanceador — assim não há NAT Gateway cobrando por hora parado); sub-redes privadas, sem saída para a internet, para o banco."
+    },
+    {
+      "nome": "saidas.tf",
+      "resumo": ""
+    },
+    {
+      "nome": "segredos.tf",
+      "resumo": "Segredos da aplicação, gerados aqui e entregues às tarefas pelo Secrets Manager (nunca como texto na definição da tarefa). Eles ficam no estado do Terraform: o estado é sensível e não vai para o repositório (ver infra/README.md)."
+    },
+    {
+      "nome": "ses.tf",
+      "resumo": "O que acontece com os avisos depois de sair, só com var.email_de: o SES publica devolução (bounce), reclamação e entrega num tópico do SNS, que entrega por HTTPS à API (POST /api/ses/eventos). A API só aceita mensagem assinada pelo SNS deste tópico, grava a ocorrência e suprime o endereço que devolveu de vez ou reclamou.  A identidade do remetente (o domínio, com DKIM) não está aqui: verificar um domínio pede registros no DNS dele, que é de quem tem o domínio."
+    },
+    {
+      "nome": "variaveis.tf",
+      "resumo": ""
+    },
+    {
+      "nome": "versoes.tf",
+      "resumo": ""
+    }
+  ],
+  "recursos": [
+    {
+      "tipo": "aws_s3_bucket",
+      "nome": "arquivos",
+      "arquivo": "armazenamento.tf",
+      "referencias": [
+        "data.aws_caller_identity.conta",
+        "var.nome"
+      ]
+    },
+    {
+      "tipo": "aws_s3_bucket_public_access_block",
+      "nome": "arquivos",
+      "arquivo": "armazenamento.tf",
+      "referencias": [
+        "aws_s3_bucket.arquivos"
+      ]
+    },
+    {
+      "tipo": "aws_s3_bucket_ownership_controls",
+      "nome": "arquivos",
+      "arquivo": "armazenamento.tf",
+      "referencias": [
+        "aws_s3_bucket.arquivos"
+      ]
+    },
+    {
+      "tipo": "aws_s3_bucket_server_side_encryption_configuration",
+      "nome": "arquivos",
+      "arquivo": "armazenamento.tf",
+      "referencias": [
+        "aws_s3_bucket.arquivos"
+      ]
+    },
+    {
+      "tipo": "aws_s3_bucket_policy",
+      "nome": "arquivos",
+      "arquivo": "armazenamento.tf",
+      "referencias": [
+        "aws_s3_bucket.arquivos",
+        "aws_s3_bucket_public_access_block.arquivos",
+        "data.aws_iam_policy_document.arquivos"
+      ]
+    },
+    {
+      "tipo": "aws_lb",
+      "nome": "entrada",
+      "arquivo": "balanceador.tf",
+      "referencias": [
+        "aws_security_group.balanceador",
+        "aws_subnet.publica",
+        "var.nome"
+      ]
+    },
+    {
+      "tipo": "aws_lb_target_group",
+      "nome": "api",
+      "arquivo": "balanceador.tf",
+      "referencias": [
+        "aws_vpc.principal",
+        "var.nome"
+      ]
+    },
+    {
+      "tipo": "aws_lb_target_group",
+      "nome": "web",
+      "arquivo": "balanceador.tf",
+      "referencias": [
+        "aws_vpc.principal",
+        "var.nome"
+      ]
+    },
+    {
+      "tipo": "aws_lb_listener",
+      "nome": "http",
+      "arquivo": "balanceador.tf",
+      "referencias": [
+        "aws_lb.entrada"
+      ]
+    },
+    {
+      "tipo": "aws_lb_listener_rule",
+      "nome": "api",
+      "arquivo": "balanceador.tf",
+      "referencias": [
+        "aws_lb_listener.http",
+        "aws_lb_target_group.api",
+        "random_password.origem"
+      ]
+    },
+    {
+      "tipo": "aws_lb_listener_rule",
+      "nome": "web",
+      "arquivo": "balanceador.tf",
+      "referencias": [
+        "aws_lb_listener.http",
+        "aws_lb_target_group.web",
+        "random_password.origem"
+      ]
+    },
+    {
+      "tipo": "aws_db_subnet_group",
+      "nome": "banco",
+      "arquivo": "banco.tf",
+      "referencias": [
+        "aws_subnet.privada",
+        "var.nome"
+      ]
+    },
+    {
+      "tipo": "aws_rds_cluster",
+      "nome": "banco",
+      "arquivo": "banco.tf",
+      "referencias": [
+        "aws_db_subnet_group.banco",
+        "aws_security_group.banco",
+        "data.aws_rds_engine_version.postgres",
+        "var.banco_acu_max",
+        "var.banco_acu_min",
+        "var.nome"
+      ]
+    },
+    {
+      "tipo": "aws_rds_cluster_instance",
+      "nome": "escrita",
+      "arquivo": "banco.tf",
+      "referencias": [
+        "aws_rds_cluster.banco",
+        "var.nome"
+      ]
+    },
+    {
+      "tipo": "aws_cloudfront_origin_access_control",
+      "nome": "s3",
+      "arquivo": "cdn.tf",
+      "referencias": [
+        "var.nome"
+      ]
+    },
+    {
+      "tipo": "aws_cloudfront_distribution",
+      "nome": "entrada",
+      "arquivo": "cdn.tf",
+      "referencias": [
+        "aws_cloudfront_origin_access_control.s3",
+        "aws_lb.entrada",
+        "aws_s3_bucket.arquivos",
+        "data.aws_cloudfront_cache_policy.com_cache",
+        "data.aws_cloudfront_cache_policy.sem_cache",
+        "data.aws_cloudfront_origin_request_policy.tudo",
+        "random_password.origem",
+        "var.nome"
+      ]
+    },
+    {
+      "tipo": "aws_s3_bucket",
+      "nome": "cofre",
+      "arquivo": "cofre.tf",
+      "referencias": [
+        "data.aws_caller_identity.conta",
+        "var.cofre_modo",
+        "var.nome"
+      ]
+    },
+    {
+      "tipo": "aws_s3_bucket_versioning",
+      "nome": "cofre",
+      "arquivo": "cofre.tf",
+      "referencias": [
+        "aws_s3_bucket.cofre"
+      ]
+    },
+    {
+      "tipo": "aws_s3_bucket_object_lock_configuration",
+      "nome": "cofre",
+      "arquivo": "cofre.tf",
+      "referencias": [
+        "aws_s3_bucket.cofre",
+        "aws_s3_bucket_versioning.cofre",
+        "var.cofre_dias",
+        "var.cofre_modo"
+      ]
+    },
+    {
+      "tipo": "aws_s3_bucket_public_access_block",
+      "nome": "cofre",
+      "arquivo": "cofre.tf",
+      "referencias": [
+        "aws_s3_bucket.cofre"
+      ]
+    },
+    {
+      "tipo": "aws_s3_bucket_ownership_controls",
+      "nome": "cofre",
+      "arquivo": "cofre.tf",
+      "referencias": [
+        "aws_s3_bucket.cofre"
+      ]
+    },
+    {
+      "tipo": "aws_s3_bucket_server_side_encryption_configuration",
+      "nome": "cofre",
+      "arquivo": "cofre.tf",
+      "referencias": [
+        "aws_s3_bucket.cofre"
+      ]
+    },
+    {
+      "tipo": "aws_s3_bucket_policy",
+      "nome": "cofre",
+      "arquivo": "cofre.tf",
+      "referencias": [
+        "aws_s3_bucket.cofre",
+        "aws_s3_bucket_public_access_block.cofre",
+        "data.aws_iam_policy_document.cofre"
+      ]
+    },
+    {
+      "tipo": "aws_iam_role_policy",
+      "nome": "api_cofre",
+      "arquivo": "cofre.tf",
+      "referencias": [
+        "aws_iam_role.api",
+        "data.aws_iam_policy_document.api_cofre"
+      ]
+    },
+    {
+      "tipo": "aws_iam_role",
+      "nome": "auditoria",
+      "arquivo": "cofre.tf",
+      "descricao": "A auditoria só lê o cofre.",
+      "referencias": [
+        "data.aws_iam_policy_document.ecs_assume",
+        "var.nome"
+      ]
+    },
+    {
+      "tipo": "aws_iam_role_policy",
+      "nome": "auditoria",
+      "arquivo": "cofre.tf",
+      "referencias": [
+        "aws_iam_role.auditoria",
+        "data.aws_iam_policy_document.auditoria"
+      ]
+    },
+    {
+      "tipo": "aws_ecs_cluster",
+      "nome": "principal",
+      "arquivo": "ecs.tf",
+      "referencias": [
+        "var.nome"
+      ]
+    },
+    {
+      "tipo": "aws_ecs_cluster_capacity_providers",
+      "nome": "principal",
+      "arquivo": "ecs.tf",
+      "referencias": [
+        "aws_ecs_cluster.principal"
+      ]
+    },
+    {
+      "tipo": "aws_service_discovery_private_dns_namespace",
+      "nome": "interno",
+      "arquivo": "ecs.tf",
+      "descricao": "DNS interno: a API acha o PSP simulado em psp.lisura.local e o PSP avisa em api.lisura.local.",
+      "referencias": [
+        "aws_vpc.principal"
+      ]
+    },
+    {
+      "tipo": "aws_service_discovery_service",
+      "nome": "servico",
+      "arquivo": "ecs.tf",
+      "referencias": [
+        "aws_service_discovery_private_dns_namespace.interno"
+      ],
+      "condicional": true
+    },
+    {
+      "tipo": "aws_cloudwatch_log_group",
+      "nome": "tarefa",
+      "arquivo": "ecs.tf",
+      "referencias": [
+        "var.nome"
+      ],
+      "condicional": true
+    },
+    {
+      "tipo": "aws_iam_role",
+      "nome": "execucao",
+      "arquivo": "ecs.tf",
+      "descricao": "Execução: o ECS baixa a imagem, escreve o log e entrega os segredos à tarefa.",
+      "referencias": [
+        "data.aws_iam_policy_document.ecs_assume",
+        "var.nome"
+      ]
+    },
+    {
+      "tipo": "aws_iam_role_policy_attachment",
+      "nome": "execucao",
+      "arquivo": "ecs.tf",
+      "referencias": [
+        "aws_iam_role.execucao"
+      ]
+    },
+    {
+      "tipo": "aws_iam_role_policy",
+      "nome": "execucao_segredos",
+      "arquivo": "ecs.tf",
+      "referencias": [
+        "aws_iam_role.execucao",
+        "data.aws_iam_policy_document.execucao_segredos"
+      ]
+    },
+    {
+      "tipo": "aws_iam_role",
+      "nome": "api",
+      "arquivo": "ecs.tf",
+      "descricao": "A API: grava publicação e documentos no bucket; não lê a fonte nem nada fora dele.",
+      "referencias": [
+        "data.aws_iam_policy_document.ecs_assume",
+        "var.nome"
+      ]
+    },
+    {
+      "tipo": "aws_iam_role_policy",
+      "nome": "api",
+      "arquivo": "ecs.tf",
+      "referencias": [
+        "aws_iam_role.api",
+        "data.aws_iam_policy_document.api"
+      ]
+    },
+    {
+      "tipo": "aws_iam_role",
+      "nome": "sem_acesso",
+      "arquivo": "ecs.tf",
+      "descricao": "PSP, front e k6 não tocam em nada da AWS.",
+      "referencias": [
+        "data.aws_iam_policy_document.ecs_assume",
+        "var.nome"
+      ]
+    },
+    {
+      "tipo": "aws_ecs_task_definition",
+      "nome": "api",
+      "arquivo": "ecs.tf",
+      "referencias": [
+        "aws_iam_role.api",
+        "aws_iam_role.execucao",
+        "aws_s3_bucket.arquivos",
+        "aws_s3_bucket.cofre",
+        "aws_sesv2_configuration_set.avisos",
+        "aws_sns_topic.eventos_ses",
+        "var.api_cpu",
+        "var.api_memoria",
+        "var.api_trabalhadores",
+        "var.email_de",
+        "var.nome"
+      ]
+    },
+    {
+      "tipo": "aws_ecs_task_definition",
+      "nome": "psp",
+      "arquivo": "ecs.tf",
+      "referencias": [
+        "aws_iam_role.execucao",
+        "aws_iam_role.sem_acesso",
+        "var.nome",
+        "var.psp_perder",
+        "var.psp_repetir"
+      ]
+    },
+    {
+      "tipo": "aws_ecs_task_definition",
+      "nome": "web",
+      "arquivo": "ecs.tf",
+      "referencias": [
+        "aws_iam_role.execucao",
+        "aws_iam_role.sem_acesso",
+        "var.nome"
+      ]
+    },
+    {
+      "tipo": "aws_ecs_task_definition",
+      "nome": "ferramenta",
+      "arquivo": "ecs.tf",
+      "descricao": "Tarefas avulsas com a imagem Go: o comando é trocado no run-task (/lisura-seed, /lisura-auditoria).",
+      "referencias": [
+        "aws_iam_role.auditoria",
+        "aws_iam_role.execucao",
+        "aws_iam_role.sem_acesso",
+        "aws_s3_bucket.cofre",
+        "var.nome"
+      ],
+      "condicional": true
+    },
+    {
+      "tipo": "aws_ecs_task_definition",
+      "nome": "k6",
+      "arquivo": "ecs.tf",
+      "referencias": [
+        "aws_cloudfront_distribution.entrada",
+        "aws_iam_role.execucao",
+        "aws_iam_role.sem_acesso",
+        "var.k6_cpu",
+        "var.k6_memoria",
+        "var.nome"
+      ]
+    },
+    {
+      "tipo": "aws_ecs_service",
+      "nome": "api",
+      "arquivo": "ecs.tf",
+      "referencias": [
+        "aws_ecs_cluster.principal",
+        "aws_ecs_task_definition.api",
+        "aws_lb_listener_rule.api",
+        "aws_lb_target_group.api",
+        "aws_service_discovery_service.servico",
+        "var.api_tarefas",
+        "var.ligado"
+      ]
+    },
+    {
+      "tipo": "aws_ecs_service",
+      "nome": "psp",
+      "arquivo": "ecs.tf",
+      "referencias": [
+        "aws_ecs_cluster.principal",
+        "aws_ecs_task_definition.psp",
+        "aws_service_discovery_service.servico",
+        "var.ligado"
+      ]
+    },
+    {
+      "tipo": "aws_ecs_service",
+      "nome": "web",
+      "arquivo": "ecs.tf",
+      "referencias": [
+        "aws_ecs_cluster.principal",
+        "aws_ecs_task_definition.web",
+        "aws_lb_listener_rule.web",
+        "aws_lb_target_group.web",
+        "var.ligado",
+        "var.web_tarefas"
+      ]
+    },
+    {
+      "tipo": "aws_ecr_repository",
+      "nome": "imagem",
+      "arquivo": "imagens.tf",
+      "condicional": true
+    },
+    {
+      "tipo": "aws_ecr_lifecycle_policy",
+      "nome": "imagem",
+      "arquivo": "imagens.tf",
+      "referencias": [
+        "aws_ecr_repository.imagem"
+      ],
+      "condicional": true
+    },
+    {
+      "tipo": "aws_iam_role",
+      "nome": "codebuild",
+      "arquivo": "imagens.tf",
+      "referencias": [
+        "data.aws_iam_policy_document.codebuild_assume",
+        "var.nome"
+      ]
+    },
+    {
+      "tipo": "aws_cloudwatch_log_group",
+      "nome": "codebuild",
+      "arquivo": "imagens.tf",
+      "referencias": [
+        "var.nome"
+      ]
+    },
+    {
+      "tipo": "aws_iam_role_policy",
+      "nome": "codebuild",
+      "arquivo": "imagens.tf",
+      "referencias": [
+        "aws_iam_role.codebuild",
+        "data.aws_iam_policy_document.codebuild"
+      ]
+    },
+    {
+      "tipo": "aws_codebuild_project",
+      "nome": "imagens",
+      "arquivo": "imagens.tf",
+      "referencias": [
+        "aws_cloudwatch_log_group.codebuild",
+        "aws_ecr_repository.imagem",
+        "aws_iam_role.codebuild",
+        "aws_s3_bucket.arquivos",
+        "var.nome",
+        "var.tag_imagem"
+      ]
+    },
+    {
+      "tipo": "aws_cloudwatch_dashboard",
+      "nome": "operacao",
+      "arquivo": "observabilidade.tf",
+      "referencias": [
+        "aws_ecs_cluster.principal",
+        "aws_lb.entrada",
+        "aws_lb_target_group.api",
+        "aws_rds_cluster.banco",
+        "data.aws_region.atual",
+        "var.nome"
+      ]
+    },
+    {
+      "tipo": "aws_vpc",
+      "nome": "principal",
+      "arquivo": "rede.tf",
+      "referencias": [
+        "var.nome"
+      ]
+    },
+    {
+      "tipo": "aws_internet_gateway",
+      "nome": "saida",
+      "arquivo": "rede.tf",
+      "referencias": [
+        "aws_vpc.principal",
+        "var.nome"
+      ]
+    },
+    {
+      "tipo": "aws_subnet",
+      "nome": "publica",
+      "arquivo": "rede.tf",
+      "referencias": [
+        "aws_vpc.principal",
+        "var.nome"
+      ],
+      "condicional": true
+    },
+    {
+      "tipo": "aws_subnet",
+      "nome": "privada",
+      "arquivo": "rede.tf",
+      "referencias": [
+        "aws_vpc.principal",
+        "var.nome"
+      ],
+      "condicional": true
+    },
+    {
+      "tipo": "aws_route_table",
+      "nome": "publica",
+      "arquivo": "rede.tf",
+      "referencias": [
+        "aws_internet_gateway.saida",
+        "aws_vpc.principal",
+        "var.nome"
+      ]
+    },
+    {
+      "tipo": "aws_route_table_association",
+      "nome": "publica",
+      "arquivo": "rede.tf",
+      "referencias": [
+        "aws_route_table.publica",
+        "aws_subnet.publica"
+      ],
+      "condicional": true
+    },
+    {
+      "tipo": "aws_security_group",
+      "nome": "balanceador",
+      "arquivo": "rede.tf",
+      "referencias": [
+        "aws_vpc.principal",
+        "var.nome"
+      ]
+    },
+    {
+      "tipo": "aws_vpc_security_group_ingress_rule",
+      "nome": "balanceador_cloudfront",
+      "arquivo": "rede.tf",
+      "referencias": [
+        "aws_security_group.balanceador",
+        "data.aws_ec2_managed_prefix_list.cloudfront"
+      ]
+    },
+    {
+      "tipo": "aws_vpc_security_group_egress_rule",
+      "nome": "balanceador_tarefas",
+      "arquivo": "rede.tf",
+      "referencias": [
+        "aws_security_group.balanceador",
+        "aws_security_group.tarefas"
+      ]
+    },
+    {
+      "tipo": "aws_security_group",
+      "nome": "tarefas",
+      "arquivo": "rede.tf",
+      "referencias": [
+        "aws_vpc.principal",
+        "var.nome"
+      ]
+    },
+    {
+      "tipo": "aws_vpc_security_group_ingress_rule",
+      "nome": "tarefas_do_balanceador",
+      "arquivo": "rede.tf",
+      "referencias": [
+        "aws_security_group.balanceador",
+        "aws_security_group.tarefas"
+      ]
+    },
+    {
+      "tipo": "aws_vpc_security_group_ingress_rule",
+      "nome": "tarefas_entre_si",
+      "arquivo": "rede.tf",
+      "descricao": "API ↔ PSP simulado (cobrança e aviso de pagamento), pelo DNS interno do Cloud Map.",
+      "referencias": [
+        "aws_security_group.tarefas"
+      ]
+    },
+    {
+      "tipo": "aws_vpc_security_group_egress_rule",
+      "nome": "tarefas_saida",
+      "arquivo": "rede.tf",
+      "descricao": "Saída livre: baixar imagens do ECR, falar com S3, Secrets Manager, CloudWatch e (k6) o CloudFront.",
+      "referencias": [
+        "aws_security_group.tarefas"
+      ]
+    },
+    {
+      "tipo": "aws_security_group",
+      "nome": "banco",
+      "arquivo": "rede.tf",
+      "referencias": [
+        "aws_vpc.principal",
+        "var.nome"
+      ]
+    },
+    {
+      "tipo": "aws_vpc_security_group_ingress_rule",
+      "nome": "banco_das_tarefas",
+      "arquivo": "rede.tf",
+      "referencias": [
+        "aws_security_group.banco",
+        "aws_security_group.tarefas"
+      ]
+    },
+    {
+      "tipo": "random_password",
+      "nome": "token",
+      "arquivo": "segredos.tf"
+    },
+    {
+      "tipo": "random_password",
+      "nome": "operacao",
+      "arquivo": "segredos.tf"
+    },
+    {
+      "tipo": "random_password",
+      "nome": "psp",
+      "arquivo": "segredos.tf"
+    },
+    {
+      "tipo": "random_password",
+      "nome": "origem",
+      "arquivo": "segredos.tf",
+      "descricao": "Cabeçalho que o CloudFront manda ao balanceador; quem não manda, recebe 403."
+    },
+    {
+      "tipo": "aws_secretsmanager_secret",
+      "nome": "app",
+      "arquivo": "segredos.tf",
+      "referencias": [
+        "var.nome"
+      ]
+    },
+    {
+      "tipo": "aws_secretsmanager_secret_version",
+      "nome": "app",
+      "arquivo": "segredos.tf",
+      "referencias": [
+        "aws_secretsmanager_secret.app",
+        "random_password.operacao",
+        "random_password.psp",
+        "random_password.token"
+      ]
+    },
+    {
+      "tipo": "aws_sesv2_configuration_set",
+      "nome": "avisos",
+      "arquivo": "ses.tf",
+      "referencias": [
+        "var.nome"
+      ],
+      "condicional": true
+    },
+    {
+      "tipo": "aws_sns_topic",
+      "nome": "eventos_ses",
+      "arquivo": "ses.tf",
+      "referencias": [
+        "var.nome"
+      ],
+      "condicional": true
+    },
+    {
+      "tipo": "aws_sns_topic_policy",
+      "nome": "eventos_ses",
+      "arquivo": "ses.tf",
+      "referencias": [
+        "aws_sns_topic.eventos_ses",
+        "data.aws_iam_policy_document.eventos_ses"
+      ],
+      "condicional": true
+    },
+    {
+      "tipo": "aws_sesv2_configuration_set_event_destination",
+      "nome": "avisos",
+      "arquivo": "ses.tf",
+      "referencias": [
+        "aws_sesv2_configuration_set.avisos",
+        "aws_sns_topic.eventos_ses",
+        "aws_sns_topic_policy.eventos_ses"
+      ],
+      "condicional": true
+    },
+    {
+      "tipo": "aws_sns_topic_subscription",
+      "nome": "eventos_ses",
+      "arquivo": "ses.tf",
+      "descricao": "A inscrição da API no tópico. O SNS manda a confirmação ao endereço, e a própria API a confirma: por isso só existe com a API no ar (var.ligado) e depois do serviço dela. Se a API ainda não respondia quando a confirmação chegou, o apply espera o prazo e falha; rodar o apply de novo manda outra confirmação.",
+      "referencias": [
+        "aws_cloudfront_distribution.entrada",
+        "aws_ecs_service.api",
+        "aws_sns_topic.eventos_ses",
+        "var.ligado"
+      ],
+      "condicional": true
+    }
+  ],
+  "dados": [
+    {
+      "tipo": "data.aws_iam_policy_document",
+      "nome": "arquivos",
+      "arquivo": "armazenamento.tf",
+      "referencias": [
+        "aws_cloudfront_distribution.entrada",
+        "aws_s3_bucket.arquivos"
+      ]
+    },
+    {
+      "tipo": "data.aws_rds_engine_version",
+      "nome": "postgres",
+      "arquivo": "banco.tf"
+    },
+    {
+      "tipo": "data.aws_cloudfront_cache_policy",
+      "nome": "sem_cache",
+      "arquivo": "cdn.tf"
+    },
+    {
+      "tipo": "data.aws_cloudfront_cache_policy",
+      "nome": "com_cache",
+      "arquivo": "cdn.tf"
+    },
+    {
+      "tipo": "data.aws_cloudfront_origin_request_policy",
+      "nome": "tudo",
+      "arquivo": "cdn.tf",
+      "descricao": "Repassa cookies, busca e cabeçalhos, inclusive CloudFront-Forwarded-Proto (é por ele que a API sabe que o navegador veio por HTTPS e marca os cookies como Secure)."
+    },
+    {
+      "tipo": "data.aws_iam_policy_document",
+      "nome": "cofre",
+      "arquivo": "cofre.tf",
+      "referencias": [
+        "aws_s3_bucket.cofre"
+      ]
+    },
+    {
+      "tipo": "data.aws_iam_policy_document",
+      "nome": "api_cofre",
+      "arquivo": "cofre.tf",
+      "descricao": "A API grava e lê âncoras; nunca apaga, nunca mexe na retenção. A negação explícita vale mesmo que alguém amplie a permissão de gravação depois.",
+      "referencias": [
+        "aws_s3_bucket.cofre"
+      ]
+    },
+    {
+      "tipo": "data.aws_iam_policy_document",
+      "nome": "auditoria",
+      "arquivo": "cofre.tf",
+      "referencias": [
+        "aws_s3_bucket.cofre"
+      ]
+    },
+    {
+      "tipo": "data.aws_iam_policy_document",
+      "nome": "ecs_assume",
+      "arquivo": "ecs.tf"
+    },
+    {
+      "tipo": "data.aws_iam_policy_document",
+      "nome": "execucao_segredos",
+      "arquivo": "ecs.tf"
+    },
+    {
+      "tipo": "data.aws_iam_policy_document",
+      "nome": "api",
+      "arquivo": "ecs.tf",
+      "referencias": [
+        "aws_s3_bucket.arquivos",
+        "aws_sesv2_configuration_set.avisos",
+        "data.aws_caller_identity.conta",
+        "data.aws_region.atual",
+        "var.email_de"
+      ]
+    },
+    {
+      "tipo": "data.aws_iam_policy_document",
+      "nome": "codebuild_assume",
+      "arquivo": "imagens.tf"
+    },
+    {
+      "tipo": "data.aws_iam_policy_document",
+      "nome": "codebuild",
+      "arquivo": "imagens.tf",
+      "referencias": [
+        "aws_cloudwatch_log_group.codebuild",
+        "aws_ecr_repository.imagem",
+        "aws_s3_bucket.arquivos"
+      ]
+    },
+    {
+      "tipo": "data.aws_availability_zones",
+      "nome": "zonas",
+      "arquivo": "rede.tf"
+    },
+    {
+      "tipo": "data.aws_ec2_managed_prefix_list",
+      "nome": "cloudfront",
+      "arquivo": "rede.tf",
+      "descricao": "Só o CloudFront fala com o balanceador (lista de endereços mantida pela AWS); um cabeçalho secreto, conferido no balanceador, barra quem tentar entrar por outra distribuição CloudFront."
+    },
+    {
+      "tipo": "data.aws_iam_policy_document",
+      "nome": "eventos_ses",
+      "arquivo": "ses.tf",
+      "referencias": [
+        "aws_sns_topic.eventos_ses",
+        "data.aws_caller_identity.conta"
+      ],
+      "condicional": true
+    },
+    {
+      "tipo": "data.aws_caller_identity",
+      "nome": "conta",
+      "arquivo": "versoes.tf"
+    },
+    {
+      "tipo": "data.aws_region",
+      "nome": "atual",
+      "arquivo": "versoes.tf"
+    }
+  ],
+  "variaveis": [
+    {
+      "tipo": "variable",
+      "nome": "cofre_modo",
+      "arquivo": "cofre.tf",
+      "descricao": "Modo do bloqueio de objeto do cofre: GOVERNANCE (ensaio) ou COMPLIANCE (produção).",
+      "referencias": [
+        "var.cofre_modo"
+      ],
+      "padrao": "\"GOVERNANCE\""
+    },
+    {
+      "tipo": "variable",
+      "nome": "cofre_dias",
+      "arquivo": "cofre.tf",
+      "descricao": "Dias de retenção de cada âncora.",
+      "padrao": "1"
+    },
+    {
+      "tipo": "variable",
+      "nome": "regiao",
+      "arquivo": "variaveis.tf",
+      "descricao": "Região AWS. São Paulo, como na arquitetura alvo.",
+      "padrao": "\"sa-east-1\""
+    },
+    {
+      "tipo": "variable",
+      "nome": "nome",
+      "arquivo": "variaveis.tf",
+      "descricao": "Prefixo de todos os recursos.",
+      "padrao": "\"lisura-poc\""
+    },
+    {
+      "tipo": "variable",
+      "nome": "tag_imagem",
+      "arquivo": "variaveis.tf",
+      "descricao": "Tag das imagens no ECR (a que infra/scripts/publicar-imagens.ps1 publicou).",
+      "padrao": "\"inicial\""
+    },
+    {
+      "tipo": "variable",
+      "nome": "ligado",
+      "arquivo": "variaveis.tf",
+      "descricao": "false deixa tudo com zero tarefas e o banco pausável: fora do ensaio, só armazenamento custa.",
+      "padrao": "false"
+    },
+    {
+      "tipo": "variable",
+      "nome": "api_tarefas",
+      "arquivo": "variaveis.tf",
+      "descricao": "Instâncias da API atrás do balanceador.",
+      "padrao": "2"
+    },
+    {
+      "tipo": "variable",
+      "nome": "api_cpu",
+      "arquivo": "variaveis.tf",
+      "descricao": "CPU por tarefa da API, em unidades do ECS (1024 = 1 vCPU).",
+      "padrao": "1024"
+    },
+    {
+      "tipo": "variable",
+      "nome": "api_memoria",
+      "arquivo": "variaveis.tf",
+      "descricao": "Memória por tarefa da API, em MiB.",
+      "padrao": "2048"
+    },
+    {
+      "tipo": "variable",
+      "nome": "api_pool_conexoes",
+      "arquivo": "variaveis.tf",
+      "descricao": "Conexões ao banco por tarefa da API. Total = api_tarefas × isto: tem de caber no max_connections do Aurora no ACU mínimo.",
+      "padrao": "20"
+    },
+    {
+      "tipo": "variable",
+      "nome": "api_trabalhadores",
+      "arquivo": "variaveis.tf",
+      "descricao": "Trabalhadores da fila de tarefas por instância da API.",
+      "padrao": "4"
+    },
+    {
+      "tipo": "variable",
+      "nome": "email_de",
+      "arquivo": "variaveis.tf",
+      "descricao": "Remetente dos avisos, verificado no SES desta região (o endereço ou o domínio dele). Vazio: o ensaio, com o provedor que aceita e conta.",
+      "referencias": [
+        "var.email_de"
+      ],
+      "padrao": "\"\""
+    },
+    {
+      "tipo": "variable",
+      "nome": "web_tarefas",
+      "arquivo": "variaveis.tf",
+      "descricao": "Instâncias do front Next.",
+      "padrao": "2"
+    },
+    {
+      "tipo": "variable",
+      "nome": "psp_repetir",
+      "arquivo": "variaveis.tf",
+      "descricao": "PSP simulado: quantas vezes manda cada aviso de pagamento (aviso repetido de propósito).",
+      "padrao": "2"
+    },
+    {
+      "tipo": "variable",
+      "nome": "psp_perder",
+      "arquivo": "variaveis.tf",
+      "descricao": "PSP simulado: chance de um aviso nunca chegar (a conciliação tem de recuperar).",
+      "padrao": "0.02"
+    },
+    {
+      "tipo": "variable",
+      "nome": "banco_acu_min",
+      "arquivo": "variaveis.tf",
+      "descricao": "Capacidade mínima do Aurora Serverless v2. 0 = pausa sozinho sem uso. No ensaio, subir ANTES (o Serverless sozinho sobe tarde num pico de 90 s).",
+      "padrao": "0"
+    },
+    {
+      "tipo": "variable",
+      "nome": "banco_acu_max",
+      "arquivo": "variaveis.tf",
+      "descricao": "Capacidade máxima do Aurora Serverless v2.",
+      "padrao": "16"
+    },
+    {
+      "tipo": "variable",
+      "nome": "k6_cpu",
+      "arquivo": "variaveis.tf",
+      "descricao": "CPU da tarefa do k6 (4096 = 4 vCPU).",
+      "padrao": "4096"
+    },
+    {
+      "tipo": "variable",
+      "nome": "k6_memoria",
+      "arquivo": "variaveis.tf",
+      "descricao": "Memória da tarefa do k6, em MiB.",
+      "padrao": "8192"
+    }
+  ],
+  "saidas": [
+    {
+      "tipo": "output",
+      "nome": "cofre",
+      "arquivo": "cofre.tf",
+      "referencias": [
+        "aws_s3_bucket.cofre"
+      ]
+    },
+    {
+      "tipo": "output",
+      "nome": "endereco",
+      "arquivo": "saidas.tf",
+      "descricao": "Onde o candidato (e o k6) entra.",
+      "referencias": [
+        "aws_cloudfront_distribution.entrada"
+      ]
+    },
+    {
+      "tipo": "output",
+      "nome": "cluster",
+      "arquivo": "saidas.tf",
+      "referencias": [
+        "aws_ecs_cluster.principal"
+      ]
+    },
+    {
+      "tipo": "output",
+      "nome": "painel_operacao",
+      "arquivo": "saidas.tf",
+      "descricao": "O painel do CloudWatch para acompanhar o ensaio: tarefas no ar, CPU, balanceador, p95 e o Aurora.",
+      "referencias": [
+        "aws_cloudwatch_dashboard.operacao",
+        "data.aws_region.atual"
+      ]
+    },
+    {
+      "tipo": "output",
+      "nome": "bucket",
+      "arquivo": "saidas.tf",
+      "referencias": [
+        "aws_s3_bucket.arquivos"
+      ]
+    },
+    {
+      "tipo": "output",
+      "nome": "projeto_codebuild",
+      "arquivo": "saidas.tf",
+      "referencias": [
+        "aws_codebuild_project.imagens"
+      ]
+    },
+    {
+      "tipo": "output",
+      "nome": "rede_tarefas",
+      "arquivo": "saidas.tf",
+      "descricao": "Para `aws ecs run-task` (seed, auditoria, k6): sub-redes e grupo de segurança das tarefas.",
+      "referencias": [
+        "aws_security_group.tarefas",
+        "aws_subnet.publica"
+      ]
+    },
+    {
+      "tipo": "output",
+      "nome": "segredo_app_arn",
+      "arquivo": "saidas.tf",
+      "descricao": "Onde está o segredo de operação (POST /api/operacao). O valor não sai aqui.",
+      "referencias": [
+        "aws_secretsmanager_secret.app"
+      ]
+    }
+  ]
+}
